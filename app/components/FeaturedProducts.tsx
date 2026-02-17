@@ -148,7 +148,7 @@ const featuredCategories: FeaturedCategory[] = [
     id: 'new-in',
     name: 'New In',
     description: 'Fresh Drops Daily',
-    image: '/images/image1.jpeg',
+    image: '/images/image21.jpeg',
     href: '/collections/new-in',
     itemCount: 48
   },
@@ -156,7 +156,7 @@ const featuredCategories: FeaturedCategory[] = [
     id: 'women',
     name: "Women's",
     description: 'Elegant & Bold',
-    image: '/images/image1.jpeg',
+    image: '/images/image19.jpeg',
     href: '/collections/women',
     itemCount: 156
   },
@@ -164,7 +164,7 @@ const featuredCategories: FeaturedCategory[] = [
     id: 'men',
     name: "Men's",
     description: 'Classic Styles',
-    image: '/images/image1.jpeg',
+    image: '/images/image20.jpeg',
     href: '/collections/men',
     itemCount: 142
   },
@@ -172,7 +172,7 @@ const featuredCategories: FeaturedCategory[] = [
     id: 'activewear',
     name: 'Activewear',
     description: 'Performance Gear',
-    image: '/images/image1.jpeg',
+    image: '/images/image14.jpeg',
     href: '/collections/activewear',
     itemCount: 89
   },
@@ -180,7 +180,7 @@ const featuredCategories: FeaturedCategory[] = [
     id: 'streetwear',
     name: 'Streetwear',
     description: 'Urban Culture',
-    image: '/images/image1.jpeg',
+    image: '/images/image9.jpeg',
     href: '/collections/streetwear',
     itemCount: 64
   },
@@ -188,7 +188,7 @@ const featuredCategories: FeaturedCategory[] = [
     id: 'featured',
     name: 'Featured',
     description: 'Curated Picks',
-    image: '/images/image1.jpeg',
+    image: '/images/image4.jpeg',
     href: '/collections/featured',
     itemCount: 24
   }
@@ -217,12 +217,13 @@ const FeaturedCollections = () => {
             FEATURED <span className="text-yellow-500">COLLECTIONS</span>
           </h2>
           <p className="text-gray-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
-            Explore our curated categories </p>
+            Explore our curated categories of premium designer footwear
+          </p>
         </div>
 
         {/* Mobile Scroll Controls - Matching Hero nav button sizing */}
         <div className="flex justify-between items-center mb-4 sm:hidden px-1">
-          <span className="text-sm text-gray-400">Swipe to explore</span>
+          <span className="text-sm text-gray-400"></span>
           <div className="flex gap-2">
             <button 
               onClick={() => scroll('left')}
