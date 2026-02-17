@@ -26,25 +26,26 @@ const FeaturedProducts = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/products')
-        if (!response.ok) {
-          throw new Error('Failed to fetch products')
-        }
-        const data = await response.json()
-        // Take first 8 products
-        setProducts(data.slice(0, 8))
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setLoading(false)
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products')
+      if (!response.ok) {
+        throw new Error('Failed to fetch products')
       }
+      const data = await response.json()
+      console.log("API response:", data) // Optional debug log
+      setProducts(data.data.slice(0, 8)) // <- Fix here
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    fetchProducts()
-  }, [])
+  fetchProducts()
+}, [])
+
 
   // Helper to construct valid image URL
   const getImageUrl = (imagePath?: string): string | null => {
@@ -64,14 +65,80 @@ const FeaturedProducts = () => {
     return null
   }
 
+  // Shimmer Card Component
+  const ShimmerCard = () => (
+    <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl border border-gray-800 overflow-hidden">
+      {/* Image Shimmer */}
+      <div className="relative aspect-square overflow-hidden bg-gray-800">
+        <div className="absolute inset-0 shimmer-gradient" />
+      </div>
+
+      {/* Content Shimmer */}
+      <div className="p-4 sm:p-5 lg:p-6 space-y-3">
+        {/* Title shimmer */}
+        <div className="h-5 bg-gray-800 rounded shimmer-gradient w-3/4" />
+        
+        {/* Description shimmer */}
+        <div className="h-4 bg-gray-800 rounded shimmer-gradient w-full" />
+        <div className="h-4 bg-gray-800 rounded shimmer-gradient w-2/3" />
+        
+        {/* Rating shimmer */}
+        <div className="flex gap-1 pt-1">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-800 rounded-full shimmer-gradient" />
+          ))}
+        </div>
+
+        {/* Price shimmer */}
+        <div className="h-6 sm:h-7 bg-gray-800 rounded shimmer-gradient w-1/2 mt-2" />
+
+        {/* Button shimmer */}
+        <div className="h-10 sm:h-12 bg-gray-800 rounded-lg shimmer-gradient w-full mt-3" />
+      </div>
+    </div>
+  )
+
   if (loading) {
     return (
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-gray-900 to-black">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-pulse text-yellow-500 text-lg">Loading products...</div>
+          
+          {/* Header Shimmer */}
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12 space-y-4">
+            <div className="h-10 sm:h-12 lg:h-16 bg-gray-800 rounded shimmer-gradient w-64 sm:w-80 lg:w-96 mx-auto" />
+            <div className="h-5 sm:h-6 lg:h-7 bg-gray-800 rounded shimmer-gradient w-full max-w-xl mx-auto" />
+          </div>
+
+          {/* Shimmer Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            {[...Array(8)].map((_, i) => (
+              <ShimmerCard key={i} />
+            ))}
           </div>
         </div>
+
+        {/* Shimmer Animation Styles */}
+        <style jsx>{`
+          .shimmer-gradient {
+            background: linear-gradient(
+              90deg,
+              rgba(31, 41, 55, 0.8) 25%,
+              rgba(55, 65, 81, 0.9) 50%,
+              rgba(31, 41, 55, 0.8) 75%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+          }
+          
+          @keyframes shimmer {
+            0% {
+              background-position: 200% 0;
+            }
+            100% {
+              background-position: -200% 0;
+            }
+          }
+        `}</style>
       </section>
     )
   }
