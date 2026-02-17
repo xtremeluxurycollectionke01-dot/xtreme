@@ -172,27 +172,27 @@ const HeroSection = () => {
               </div>
 
               {/* Floating Elements - Desktop Only *
-<div className="absolute -top-6 -right-6 w-32 h-32 bg-black border border-yellow-500/30 rounded-2xl p-4 z-10 hidden lg:block">
-  <div className="relative w-full h-full">
-    <Image
-      src="/images/image3.jpg"
-      alt="Limited Edition"
-      fill
-      className="object-cover rounded-lg"
-    />
-  </div>
-</div>
+                <div className="absolute -top-6 -right-6 w-32 h-32 bg-black border border-yellow-500/30 rounded-2xl p-4 z-10 hidden lg:block">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="/images/image3.jpg"
+                      alt="Limited Edition"
+                      fill
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
+                </div>
 
-<div className="absolute -bottom-6 -left-6 w-40 h-40 bg-black border border-yellow-500/30 rounded-2xl p-4 z-10 hidden lg:block">
-  <div className="relative w-full h-full">
-    <Image
-      src="/images/image2.jpg"
-      alt="Premium Materials"
-      fill
-      className="object-cover rounded-lg"
-    />
-  </div>
-</div>
+                <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-black border border-yellow-500/30 rounded-2xl p-4 z-10 hidden lg:block">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="/images/image2.jpg"
+                      alt="Premium Materials"
+                      fill
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
+                </div>
 
 
             </div>
