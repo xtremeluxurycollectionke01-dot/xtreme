@@ -1,4 +1,3 @@
-import DesignerShowcase from "./components/DesignerShowcase";
 import FeaturedCollections from "./components/FeaturedCollections";
 import FeaturedProducts from "./components/FeaturedProducts";
 import Footer from "./components/Footer";
@@ -11,9 +10,8 @@ export default function Home() {
     <div className="min-h-screen bg-black">
       <Navbar />
       <HeroSection />
-      <FeaturedCollections />
       <FeaturedProducts />
-      <DesignerShowcase />
+      <FeaturedCollections />
       <Newsletter />
       <Footer />
     </div>
