@@ -33,9 +33,11 @@ useEffect(() => {
       if (!response.ok) {
         throw new Error('Failed to fetch products')
       }
-      const data = await response.json()
-      console.log("API response:", data) // Optional debug log
-      setProducts(data.data.slice(0, 8)) // <- Fix here
+
+      const data: Product[] = await response.json()
+      console.log("API response:", data) // array of 24 products
+
+      setProducts(data.slice(0, 8)) // <-- just slice the array directly
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
