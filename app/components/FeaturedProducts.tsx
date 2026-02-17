@@ -1,454 +1,233 @@
-/*'use client'
-
-import Image from "next/image"
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef } from 'react'
-
-interface FeaturedCategory {
-  id: string
-  name: string
-  description: string
-  image: string
-  href: string
-  itemCount: number
-}
-
-const featuredCategories: FeaturedCategory[] = [
-  {
-    id: 'new-in',
-    name: 'New In',
-    description: 'Fresh Drops Daily',
-    image: '/images/image21.jpeg',
-    href: '/collections/new-in',
-    itemCount: 48
-  },
-  {
-    id: 'women',
-    name: "Women's",
-    description: 'Elegant & Bold',
-    image: '/images/image19.jpeg',
-    href: '/collections/women',
-    itemCount: 156
-  },
-  {
-    id: 'men',
-    name: "Men's",
-    description: 'Classic Styles',
-    image: '/images/image20.jpeg',
-    href: '/collections/men',
-    itemCount: 142
-  },
-  {
-    id: 'activewear',
-    name: 'Activewear',
-    description: 'Performance Gear',
-    image: '/images/image14.jpeg',
-    href: '/collections/activewear',
-    itemCount: 89
-  },
-  {
-    id: 'streetwear',
-    name: 'Streetwear',
-    description: 'Urban Culture',
-    image: '/images/image9.jpeg',
-    href: '/collections/streetwear',
-    itemCount: 64
-  },
-  {
-    id: 'featured',
-    name: 'Featured',
-    description: 'Curated Picks',
-    image: '/images/image4.jpeg',
-    href: '/collections/featured',
-    itemCount: 24
-  }
-]
-
-const FeaturedCollections = () => {
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 200
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      })
-    }
-  }
-
-  return (
-    <section id="collections" className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-black to-gray-900">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header - Matching HeroSection typography scale *
-        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 lg:mb-6 leading-tight">
-            FEATURED <span className="text-yellow-500">COLLECTIONS</span>
-          </h2>
-          <p className="text-gray-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
-            Explore our curated categories of premium designer footwear
-          </p>
-        </div>
-
-        {/* Mobile Scroll Controls - Matching Hero nav button sizing *
-        <div className="flex justify-between items-center mb-4 sm:hidden px-1">
-          <span className="text-sm text-gray-400">Swipe to explore</span>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => scroll('left')}
-              className="p-3 bg-black/50 backdrop-blur-sm rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button 
-              onClick={() => scroll('right')}
-              className="p-3 bg-black/50 backdrop-blur-sm rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Categories Container *
-        <div 
-          ref={scrollRef}
-          className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
-        >
-          {featuredCategories.map((category) => (
-            <a
-              key={category.id}
-              href={category.href}
-              className="group relative bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl border border-gray-800 overflow-hidden hover:border-yellow-500 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/10 block flex-shrink-0 w-[75vw] xs:w-[60vw] sm:w-auto snap-start"
-            >
-              {/* Image Container - Matching Hero aspect ratios *
-              <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  sizes="(max-width: 640px) 75vw, (max-width: 1024px) 50vw, 16vw"
-                />
-                {/* Gradient Overlay *
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
-                
-                {/* Featured Badge - Matching Hero badge style *
-                {category.id === 'featured' && (
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/50 rounded-full text-yellow-400 text-xs sm:text-sm font-semibold">
-                    HOT
-                  </div>
-                )}
-              </div>
-
-              {/* Content Overlay - Matching Hero content spacing *
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 lg:p-6">
-                <div className="space-y-1 sm:space-y-2">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm sm:text-base text-yellow-500 font-medium">
-                    {category.description}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-400">
-                    {category.itemCount} items
-                  </p>
-                </div>
-
-                {/* View Button - Matching Hero button sizing *
-                {category.id === 'featured' ? (
-                  <button className="mt-3 sm:mt-4 w-full py-2.5 sm:py-3 bg-yellow-500 text-black text-sm sm:text-base font-bold rounded-lg hover:bg-yellow-400 transition-colors flex items-center justify-center gap-2 group/btn">
-                    View All
-                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover/btn:translate-x-1 transition-transform" />
-                  </button>
-                ) : (
-                  /* Arrow Indicator for others *
-                  <div className="mt-3 sm:mt-4 flex items-center text-gray-400 group-hover:text-yellow-500 transition-colors">
-                    <span className="text-sm sm:text-base font-medium">Explore</span>
-                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-1 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                )}
-              </div>
-            </a>
-          ))}
-        </div>
-
-        {/* Scroll Indicator Dots - Matching Hero carousel dots *
-        <div className="flex justify-center gap-2 mt-6 sm:hidden">
-          {featuredCategories.map((_, idx) => (
-            <div 
-              key={idx}
-              className={`h-2 rounded-full transition-all ${idx === 0 ? 'w-6 bg-yellow-500' : 'w-2 bg-white/50'}`}
-            />
-          ))}
-        </div>
-
-        {/* View All Button - Matching Hero CTA button exactly *
-        <div className="mt-10 sm:mt-12 lg:mt-16 text-center">
-          <a 
-            href="/"
-            className="inline-flex items-center gap-2 px-8 py-4 border-2 border-yellow-500 text-yellow-500 text-base sm:text-lg font-bold rounded-lg hover:bg-yellow-500 hover:text-black transition-all"
-          >
-            View All Collections
-            <ArrowRight className="h-5 w-5" />
-          </a>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export default FeaturedCollections */
-
 'use client'
 
 import Image from "next/image"
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { ArrowRight, ShoppingBag, Star } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
-interface FeaturedCategory {
-  id: string
+interface Product {
+  _id: string
+  id: number
   name: string
-  description: string
-  image: string
-  href: string
-  itemCount: number
+  description?: string
+  price: number
+  image?: string
+  stock: number
+  created_at: string
+  category_id?: number
+  subcategory_id?: number
+  brand_id?: number
 }
 
-const featuredCategories: FeaturedCategory[] = [
-  {
-    id: 'new-in',
-    name: 'New In',
-    description: 'Fresh Drops Daily',
-    image: '/images/image21.jpeg',
-    href: '/collections/new-in',
-    itemCount: 48
-  },
-  {
-    id: 'women',
-    name: "Women's",
-    description: 'Elegant & Bold',
-    image: '/images/image19.jpeg',
-    href: '/collections/women',
-    itemCount: 156
-  },
-  {
-    id: 'men',
-    name: "Men's",
-    description: 'Classic Styles',
-    image: '/images/image20.jpeg',
-    href: '/collections/men',
-    itemCount: 142
-  },
-  {
-    id: 'activewear',
-    name: 'Activewear',
-    description: 'Performance Gear',
-    image: '/images/image14.jpeg',
-    href: '/collections/activewear',
-    itemCount: 89
-  },
-  {
-    id: 'streetwear',
-    name: 'Streetwear',
-    description: 'Urban Culture',
-    image: '/images/image9.jpeg',
-    href: '/collections/streetwear',
-    itemCount: 64
-  },
-  {
-    id: 'featured',
-    name: 'Featured',
-    description: 'Curated Picks',
-    image: '/images/image4.jpeg',
-    href: '/collections/featured',
-    itemCount: 24
-  }
-]
+// TODO: Update this with your actual image base URL when ready
+const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_IMAGE_URL || ''
 
-const FeaturedCollections = () => {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const cardRefs = useRef<(HTMLAnchorElement | null)[]>([])
+const FeaturedProducts = () => {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 280
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      })
-    }
-  }
-
-  // Intersection Observer to track which card is in view
   useEffect(() => {
-    const observerOptions = {
-      root: scrollRef.current,
-      rootMargin: '0px',
-      threshold: 0.5
-    }
-
-    const observerCallback: IntersectionObserverCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const index = cardRefs.current.indexOf(entry.target as HTMLAnchorElement)
-          if (index !== -1) {
-            setActiveIndex(index)
-          }
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products')
+        if (!response.ok) {
+          throw new Error('Failed to fetch products')
         }
-      })
+        const data = await response.json()
+        // Take first 8 products
+        setProducts(data.slice(0, 8))
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error')
+      } finally {
+        setLoading(false)
+      }
     }
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions)
-
-    cardRefs.current.forEach((card) => {
-      if (card) observer.observe(card)
-    })
-
-    return () => observer.disconnect()
+    fetchProducts()
   }, [])
 
-  // Handle dot click to scroll to specific card
-  const scrollToCard = useCallback((index: number) => {
-    const card = cardRefs.current[index]
-    if (card && scrollRef.current) {
-      const scrollContainer = scrollRef.current
-      const cardLeft = card.offsetLeft
-      const containerWidth = scrollContainer.clientWidth
-      const cardWidth = card.clientWidth
-      
-      // Center the card in the viewport
-      const scrollPosition = cardLeft - (containerWidth / 2) + (cardWidth / 2)
-      
-      scrollContainer.scrollTo({
-        left: Math.max(0, scrollPosition),
-        behavior: 'smooth'
-      })
-      setActiveIndex(index)
+  // Helper to construct valid image URL
+  const getImageUrl = (imagePath?: string): string | null => {
+    if (!imagePath) return null
+    
+    // If it's already a full URL, return as-is
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      return imagePath
     }
-  }, [])
+    
+    // If IMAGE_BASE_URL is set, prepend it
+    if (IMAGE_BASE_URL) {
+      return `${IMAGE_BASE_URL}/${imagePath}`
+    }
+    
+    // Return null to trigger placeholder
+    return null
+  }
+
+  if (loading) {
+    return (
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-gray-900 to-black">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-pulse text-yellow-500 text-lg">Loading products...</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-gray-900 to-black">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-red-500">
+            Error loading products: {error}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
-    <section id="collections" className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-black to-gray-900">
+    <section id="products" className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-gray-900 to-black">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header - Matching HeroSection typography scale */}
+        {/* Header - Matching Hero/Collections typography */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 lg:mb-6 leading-tight">
-            FEATURED <span className="text-yellow-500">COLLECTIONS</span>
+            FEATURED <span className="text-yellow-500">PRODUCTS</span>
           </h2>
           <p className="text-gray-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
-            Explore our curated categories of premium designer footwear
+            Discover our latest premium designer footwear collection
           </p>
         </div>
 
-        {/* Mobile Scroll Controls - Matching Hero nav button sizing */}
-        <div className="flex justify-between items-center mb-4 sm:hidden px-1">
-          <span className="text-sm text-gray-400">Swipe to explore</span>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => scroll('left')}
-              className="p-3 bg-black/50 backdrop-blur-sm rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button 
-              onClick={() => scroll('right')}
-              className="p-3 bg-black/50 backdrop-blur-sm rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+        {/* Products Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          {products.map((product, index) => {
+            const imageUrl = getImageUrl(product.image)
+            
+            return (
+              <div
+                key={product._id}
+                className="group relative bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl border border-gray-800 overflow-hidden hover:border-yellow-500 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/10"
+              >
+                {/* Image Container */}
+                <div className="relative aspect-square overflow-hidden bg-gray-800">
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      onError={(e) => {
+                        // Fallback to placeholder on error
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                      }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800">
+                      <ShoppingBag className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mb-2" />
+                      <span className="text-xs sm:text-sm text-gray-500">No image</span>
+                    </div>
+                  )}
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                  
+                  {/* New Badge - First 4 products */}
+                  {index < 4 && (
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/50 rounded-full text-yellow-400 text-xs sm:text-sm font-semibold">
+                      NEW
+                    </div>
+                  )}
 
-        {/* Categories Container */}
-        <div 
-          ref={scrollRef}
-          className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
-        >
-          {featuredCategories.map((category, index) => (
-            <a
-              key={category.id}
-              ref={(el) => { cardRefs.current[index] = el }}
-              href={category.href}
-              className="group relative bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl border border-gray-800 overflow-hidden hover:border-yellow-500 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/10 block flex-shrink-0 w-[75vw] xs:w-[60vw] sm:w-auto snap-start"
-            >
-              {/* Image Container - Matching Hero aspect ratios */}
-              <div className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  sizes="(max-width: 640px) 75vw, (max-width: 1024px) 50vw, 16vw"
-                />
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
-                
-                {/* Featured Badge - Matching Hero badge style */}
-                {category.id === 'featured' && (
-                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 px-3 py-1 sm:px-4 sm:py-1.5 bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/50 rounded-full text-yellow-400 text-xs sm:text-sm font-semibold">
-                    HOT
-                  </div>
-                )}
-              </div>
+                  {/* Quick Add Button */}
+                  <button className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 sm:p-3 bg-black/50 backdrop-blur-sm rounded-full text-yellow-500 hover:bg-yellow-500 hover:text-black transition-all opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0">
+                    <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </button>
 
-              {/* Content Overlay - Matching Hero content spacing */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 lg:p-6">
-                <div className="space-y-1 sm:space-y-2">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm sm:text-base text-yellow-500 font-medium">
-                    {category.description}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-400">
-                    {category.itemCount} items
-                  </p>
+                  {/* Stock Badge */}
+                  {product.stock <= 5 && product.stock > 0 && (
+                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 px-2 py-1 bg-red-500/20 backdrop-blur-sm border border-red-500/50 rounded text-red-400 text-[10px] sm:text-xs font-semibold">
+                      Only {product.stock} left
+                    </div>
+                  )}
+                  {product.stock === 0 && (
+                    <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 px-2 py-1 bg-gray-500/20 backdrop-blur-sm border border-gray-500/50 rounded text-gray-400 text-[10px] sm:text-xs font-semibold">
+                      Out of stock
+                    </div>
+                  )}
                 </div>
 
-                {/* View Button - Matching Hero button sizing */}
-                {category.id === 'featured' ? (
-                  <button className="mt-3 sm:mt-4 w-full py-2.5 sm:py-3 bg-yellow-500 text-black text-sm sm:text-base font-bold rounded-lg hover:bg-yellow-400 transition-colors flex items-center justify-center gap-2 group/btn">
-                    View All
-                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover/btn:translate-x-1 transition-transform" />
-                  </button>
-                ) : (
-                  /* Arrow Indicator for others */
-                  <div className="mt-3 sm:mt-4 flex items-center text-gray-400 group-hover:text-yellow-500 transition-colors">
-                    <span className="text-sm sm:text-base font-medium">Explore</span>
-                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-1 group-hover:translate-x-1 transition-transform" />
+                {/* Content */}
+                <div className="p-4 sm:p-5 lg:p-6">
+                  <div className="space-y-1 sm:space-y-2">
+                    <h3 className="text-sm sm:text-base lg:text-lg font-bold text-white leading-tight line-clamp-1">
+                      {product.name}
+                    </h3>
+                    
+                    {product.description && (
+                      <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
+                        {product.description}
+                      </p>
+                    )}
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`w-3 h-3 sm:w-4 sm:h-4 ${i < 4 ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`} 
+                        />
+                      ))}
+                      <span className="text-xs text-gray-400 ml-1">(4.0)</span>
+                    </div>
+
+                    {/* Price & CTA */}
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="text-yellow-500">
+                        <span className="text-xs text-gray-400">KSh</span>
+                        <span className="text-lg sm:text-xl lg:text-2xl font-bold ml-1">
+                          {product.price.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <button 
+                      disabled={product.stock === 0}
+                      className={`mt-3 sm:mt-4 w-full py-2.5 sm:py-3 rounded-lg font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 ${
+                        product.stock === 0
+                          ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                          : 'bg-yellow-500 text-black hover:bg-yellow-400 active:scale-95'
+                      }`}
+                    >
+                      {product.stock === 0 ? (
+                        'Out of Stock'
+                      ) : (
+                        <>
+                          Add to Cart
+                          <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                        </>
+                      )}
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
-            </a>
-          ))}
+            )
+          })}
         </div>
 
-        {/* Scroll Indicator Dots - Interactive and responsive to scroll */}
-        <div className="flex justify-center gap-2 mt-6 sm:hidden">
-          {featuredCategories.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => scrollToCard(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === activeIndex 
-                  ? 'w-6 bg-yellow-500' 
-                  : 'w-2 bg-white/50 hover:bg-white/70'
-              }`}
-              aria-label={`Go to ${featuredCategories[idx].name}`}
-            />
-          ))}
-        </div>
-
-        {/* View All Button - Matching Hero CTA button exactly */}
+        {/* View All Button - Matching Hero/Collections CTA */}
         <div className="mt-10 sm:mt-12 lg:mt-16 text-center">
           <a 
-            href="/collections/all"
+            href="/shop"
             className="inline-flex items-center gap-2 px-8 py-4 border-2 border-yellow-500 text-yellow-500 text-base sm:text-lg font-bold rounded-lg hover:bg-yellow-500 hover:text-black transition-all"
           >
-            View All Collections
+            View All Products
             <ArrowRight className="h-5 w-5" />
           </a>
         </div>
@@ -457,4 +236,4 @@ const FeaturedCollections = () => {
   )
 }
 
-export default FeaturedCollections
+export default FeaturedProducts
