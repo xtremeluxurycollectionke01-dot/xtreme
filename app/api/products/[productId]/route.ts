@@ -2,29 +2,40 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-// GET /api/products/[productId] - Get single product
+// GET /api/products/[productId]
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ productId: string }> }
 ) {
-  const { productId } = await context.params; // <- important
-  await dbConnect();
-  const product = await Product.findById(productId)
-    .populate("category", "name slug")
-    .populate("subcategory", "name slug");
+  const { productId } = await context.params; // await params
+  console.log(`📦 [GET /api/products/${productId}] Request received`);
 
-  if (!product)
-    return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 });
+  try {
+    await dbConnect();
 
-  return NextResponse.json({ success: true, data: product }, { status: 200 });
+    const product = await Product.findById(productId)
+      .populate("category", "name slug")
+      .populate("subcategory", "name slug");
+
+    if (!product) {
+      return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: product }, { status: 200 });
+  } catch (error: any) {
+    if (error.name === "CastError") {
+      return NextResponse.json({ success: false, error: "Invalid product ID format" }, { status: 400 });
+    }
+    return NextResponse.json({ success: false, error: "Failed to fetch product" }, { status: 500 });
+  }
 }
 
-// PUT / PATCH / DELETE all follow the same pattern:
+// PUT /api/products/[productId]
 export async function PUT(
   request: NextRequest,
-  context: { params: { productId: string } }
+  context: { params: Promise<{ productId: string }> }
 ) {
-  const { productId } = context.params;
+  const { productId } = await context.params; // await params
   try {
     await dbConnect();
     const updates = await request.json();
@@ -33,6 +44,7 @@ export async function PUT(
     delete updates.createdAt;
 
     const product = await Product.findByIdAndUpdate(productId, { $set: updates }, { new: true, runValidators: true });
+
     if (!product) return NextResponse.json({ success: false, error: "Product not found" }, { status: 404 });
 
     return NextResponse.json({ success: true, data: product, message: "Product updated successfully" }, { status: 200 });
@@ -41,18 +53,20 @@ export async function PUT(
   }
 }
 
+// PATCH /api/products/[productId]
 export async function PATCH(
   request: NextRequest,
-  context: { params: { productId: string } }
+  context: { params: Promise<{ productId: string }> }
 ) {
-  return PUT(request, context); // same logic as PUT for partial updates
+  return PUT(request, context); // same logic as PUT
 }
 
+// DELETE /api/products/[productId]
 export async function DELETE(
   request: NextRequest,
-  context: { params: { productId: string } }
+  context: { params: Promise<{ productId: string }> }
 ) {
-  const { productId } = context.params;
+  const { productId } = await context.params; // await params
   try {
     await dbConnect();
     const product = await Product.findByIdAndDelete(productId);
