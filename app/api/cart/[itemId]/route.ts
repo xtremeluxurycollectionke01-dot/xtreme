@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import { requireAuth } from "@/lib/auth";
@@ -84,6 +84,113 @@ export async function DELETE(
 
     cart.items = cart.items.filter(
       (item) => item._id.toString() !== params.itemId
+    );
+
+    await cart.save();
+    await cart.populate("items.product");
+
+    return NextResponse.json({ success: true, cart }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}*/
+
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "@/lib/mongodb";
+import Cart from "@/models/Cart";
+import { requireAuth } from "@/lib/auth";
+
+type RouteContext = {
+  params: Promise<{ itemId: string }>;
+};
+
+export async function PUT(
+  request: NextRequest,
+  context: RouteContext
+) {
+  try {
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { itemId } = await context.params;
+    const { quantity } = await request.json();
+
+    if (quantity < 1) {
+      return NextResponse.json(
+        { success: false, error: "Quantity must be at least 1" },
+        { status: 400 }
+      );
+    }
+
+    await dbConnect();
+
+    const cart = await Cart.findOne({ user: user._id });
+    if (!cart) {
+      return NextResponse.json(
+        { success: false, error: "Cart not found" },
+        { status: 404 }
+      );
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) => item._id.toString() === itemId
+    );
+
+    if (itemIndex === -1) {
+      return NextResponse.json(
+        { success: false, error: "Item not found" },
+        { status: 404 }
+      );
+    }
+
+    cart.items[itemIndex].quantity = quantity;
+    await cart.save();
+    await cart.populate("items.product");
+
+    return NextResponse.json({ success: true, cart }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: RouteContext
+) {
+  try {
+    const user = await requireAuth(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { itemId } = await context.params;
+
+    await dbConnect();
+
+    const cart = await Cart.findOne({ user: user._id });
+    if (!cart) {
+      return NextResponse.json(
+        { success: false, error: "Cart not found" },
+        { status: 404 }
+      );
+    }
+
+    cart.items = cart.items.filter(
+      (item) => item._id.toString() !== itemId
     );
 
     await cart.save();
