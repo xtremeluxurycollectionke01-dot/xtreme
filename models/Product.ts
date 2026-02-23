@@ -32,7 +32,7 @@ const Product: Model<IProduct> =
 
 export default Product;*/
 
-import mongoose, { Schema, Document, Model } from "mongoose";
+/*import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IProduct extends Document {
   name: string;
@@ -76,6 +76,115 @@ const ProductSchema: Schema<IProduct> = new Schema(
   },
   { timestamps: true }
 );
+
+const Product: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
+export default Product;*/
+
+import mongoose, { Schema, Document, Model } from "mongoose";
+
+// Define size schema
+export interface IProductSize {
+  size: string;
+  system: "US" | "UK" | "EU";
+  stock: number;
+}
+
+// Define color schema
+export interface IProductColor {
+  name: string;
+  hex: string;
+  images?: string[]; // Optional color-specific images
+}
+
+export interface IProduct extends Document {
+  name: string;
+  slug: string;
+  description?: string;
+  price: number;
+  comparePrice?: number;
+  images: {
+    url: string;
+    alt?: string;
+    isPrimary?: boolean;
+  }[];
+  stock: number;
+  sku: string;
+  category: mongoose.Types.ObjectId;
+  subcategory?: mongoose.Types.ObjectId;
+  brand?: string;
+  sizes: IProductSize[];
+  colors: IProductColor[];
+  isFeatured: boolean;
+  isActive: boolean;
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Size sub-schema
+const ProductSizeSchema = new Schema({
+  size: { type: String, required: true },
+  system: { type: String, enum: ["US", "UK", "EU"], required: true },
+  stock: { type: Number, default: 0, min: 0 },
+});
+
+// Color sub-schema
+const ProductColorSchema = new Schema({
+  name: { type: String, required: true },
+  hex: { type: String, required: true, match: /^#[0-9A-Fa-f]{6}$/ },
+  images: [{ type: String }],
+});
+
+// Image sub-schema
+const ProductImageSchema = new Schema({
+  url: { type: String, required: true },
+  alt: { type: String },
+  isPrimary: { type: Boolean, default: false },
+});
+
+const ProductSchema: Schema<IProduct> = new Schema(
+  {
+    name: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    description: { type: String },
+    price: { type: Number, required: true, min: 0 },
+    comparePrice: { type: Number, min: 0 },
+    images: [ProductImageSchema],
+    stock: { type: Number, default: 0, min: 0 },
+    sku: { type: String, required: true, unique: true },
+    category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    subcategory: { type: Schema.Types.ObjectId, ref: "Category" },
+    brand: { type: String },
+    sizes: [ProductSizeSchema],
+    colors: [ProductColorSchema],
+    isFeatured: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
+    tags: [{ type: String }],
+  },
+  { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
+);
+
+// Virtual for total stock across sizes
+ProductSchema.virtual("totalStock").get(function() {
+  if (this.sizes && this.sizes.length > 0) {
+    return this.sizes.reduce((total, size) => total + size.stock, 0);
+  }
+  return this.stock;
+});
+
+// Create slug from name before saving
+ProductSchema.pre("save", function(next) {
+  if (this.isModified("name")) {
+    this.slug = this.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  }
+});
 
 const Product: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
 export default Product;
