@@ -4,751 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { 
-  ArrowLeft,
-  Save,
-  X,
-  Plus,
-  Trash2,
-  Upload,
-  Package,
-  AlertCircle,
-  CheckCircle
-} from "lucide-react";
-import { useAuth } from "@/components/AuthProvider";
-
-interface Category {
-  _id: string;
-  name: string;
-  slug: string;
-}
-
-export default function NewProductPage() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
-  
-  // Form state
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    price: "",
-    comparePrice: "",
-    sku: "",
-    stock: "",
-    category: "",
-    subcategory: "",
-    brand: "",
-    isFeatured: false,
-    isActive: true,
-    tags: [] as string[],
-    sizes: [] as string[],
-    colors: [] as string[],
-    images: [] as string[],
-  });
-
-  // Tag input
-  const [tagInput, setTagInput] = useState("");
-  
-  // Size input
-  const [sizeInput, setSizeInput] = useState("");
-  
-  // Color input
-  const [colorInput, setColorInput] = useState("");
-  
-  // Image URL input
-  const [imageUrl, setImageUrl] = useState("");
-
-  // Available sizes for shoes
-  const availableSizes = [
-    "EU 36", "EU 37", "EU 38", "EU 39", "EU 40", "EU 41", "EU 42", "EU 43", "EU 44", "EU 45", "EU 46",
-    "US 5", "US 6", "US 7", "US 8", "US 9", "US 10", "US 11", "US 12",
-    "UK 3", "UK 4", "UK 5", "UK 6", "UK 7", "UK 8", "UK 9", "UK 10", "UK 11"
-  ];
-
-  useEffect(() => {
-    // Redirect if not admin
-    if (!authLoading && (!user || user.role !== "admin")) {
-      router.push("/");
-      return;
-    }
-
-    fetchCategories();
-  }, [user, authLoading, router]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/categories");
-      const data = await response.json();
-      setCategories(data.data || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-
-    // Auto-generate slug from name
-    if (name === 'name') {
-      setFormData(prev => ({
-        ...prev,
-        slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-      }));
-    }
-  };
-
-  const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput("");
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  const addSize = () => {
-    if (sizeInput && !formData.sizes.includes(sizeInput)) {
-      setFormData(prev => ({
-        ...prev,
-        sizes: [...prev.sizes, sizeInput]
-      }));
-      setSizeInput("");
-    }
-  };
-
-  const removeSize = (sizeToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      sizes: prev.sizes.filter(size => size !== sizeToRemove)
-    }));
-  };
-
-  const addColor = () => {
-    if (colorInput.trim() && !formData.colors.includes(colorInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        colors: [...prev.colors, colorInput.trim()]
-      }));
-      setColorInput("");
-    }
-  };
-
-  const removeColor = (colorToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      colors: prev.colors.filter(color => color !== colorToRemove)
-    }));
-  };
-
-  const addImage = () => {
-    if (imageUrl.trim() && !formData.images.includes(imageUrl.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, imageUrl.trim()]
-      }));
-      setImageUrl("");
-    }
-  };
-
-  const removeImage = (imageToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter(img => img !== imageToRemove)
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.name) return "Product name is required";
-    if (!formData.sku) return "SKU is required";
-    if (!formData.price || parseFloat(formData.price) <= 0) return "Valid price is required";
-    if (!formData.category) return "Category is required";
-    if (formData.images.length === 0) return "At least one image is required";
-    return null;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const validationError = validateForm();
-    if (validationError) {
-      showNotification("error", validationError);
-      return;
-    }
-
-    setSaving(true);
-    showNotification("success", "Creating product...");
-
-    try {
-      const response = await fetch("/api/admin/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          price: parseFloat(formData.price),
-          comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
-          stock: parseInt(formData.stock) || 0,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to create product");
-      }
-
-      showNotification("success", "Product created successfully!");
-      
-      // Redirect after a short delay
-      setTimeout(() => {
-        router.push("/admin/products");
-        router.refresh();
-      }, 1500);
-    } catch (error: any) {
-      console.error("Error creating product:", error);
-      showNotification("error", error.message || "Failed to create product");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
-      <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto"
-        >
-          {/* Header *
-          <div className="flex items-center gap-4 mb-8">
-            <Link
-              href="/admin/products"
-              className="p-2 bg-gray-900 border border-gray-800 rounded-lg hover:border-yellow-500 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold">
-                ADD NEW <span className="text-yellow-500">PRODUCT</span>
-              </h1>
-              <p className="text-gray-400 mt-1">
-                Create a new product in your catalog
-              </p>
-            </div>
-          </div>
-
-          {/* Notification *
-          {notification && (
-            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              notification.type === 'success' ? 'bg-green-500/10 border border-green-500/50 text-green-500' :
-              'bg-red-500/10 border border-red-500/50 text-red-500'
-            }`}>
-              {notification.type === 'success' ? (
-                <CheckCircle className="h-5 w-5 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              )}
-              <p>{notification.message}</p>
-            </div>
-          )}
-
-          {/* Main Form *
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Information *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <Package className="h-5 w-5 text-yellow-500" />
-                Basic Information
-              </h2>
-
-              <div className="space-y-4">
-                {/* Product Name *
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Product Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="e.g., Air Max 270"
-                  />
-                </div>
-
-                {/* Slug *
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Slug
-                  </label>
-                  <input
-                    type="text"
-                    name="slug"
-                    value={formData.slug}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="auto-generated-from-name"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    URL-friendly version of the name
-                  </p>
-                </div>
-
-                {/* Description *
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={4}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white resize-none"
-                    placeholder="Product description..."
-                  />
-                </div>
-
-                {/* SKU and Brand *
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      SKU <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="sku"
-                      value={formData.sku}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                      placeholder="e.g., Nike-AIRMAX-001"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Brand
-                    </label>
-                    <input
-                      type="text"
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                      placeholder="e.g., Nike, Adidas"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Pricing & Stock *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Pricing & Stock</h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Price (KSh) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="0.00"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Compare at Price
-                  </label>
-                  <input
-                    type="number"
-                    name="comparePrice"
-                    value={formData.comparePrice}
-                    onChange={handleChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="0.00"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Stock Quantity
-                  </label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={formData.stock}
-                    onChange={handleChange}
-                    min="0"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Category *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Category</h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Category <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map(cat => (
-                      <option key={cat._id} value={cat._id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Subcategory
-                  </label>
-                  <select
-                    name="subcategory"
-                    value={formData.subcategory}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  >
-                    <option value="">Select a subcategory</option>
-                    {/* Add subcategories based on selected category *
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Images *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Product Images</h2>
-
-              {/* Image Upload URL Input *
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="Enter image URL..."
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                />
-                <button
-                  type="button"
-                  onClick={addImage}
-                  className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors flex items-center gap-2"
-                >
-                  <Plus className="h-5 w-5" />
-                  Add
-                </button>
-              </div>
-
-              {/* Image Preview Grid *
-              {formData.images.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="relative group">
-                      <div className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                        <Image
-                          src={img}
-                          alt={`Product ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeImage(img)}
-                        className="absolute -top-2 -right-2 p-1 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                      {index === 0 && (
-                        <span className="absolute bottom-2 left-2 px-2 py-1 bg-yellow-500 text-black text-xs font-bold rounded">
-                          Primary
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {formData.images.length === 0 && (
-                <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center">
-                  <Upload className="h-12 w-12 text-gray-600 mx-auto mb-3" />
-                  <p className="text-gray-400">No images added yet</p>
-                  <p className="text-sm text-gray-600">Add at least one image URL above</p>
-                </div>
-              )}
-            </div>
-
-            {/* Sizes *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Available Sizes</h2>
-
-              {/* Size Input *
-              <div className="flex gap-2 mb-4">
-                <select
-                  value={sizeInput}
-                  onChange={(e) => setSizeInput(e.target.value)}
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                >
-                  <option value="">Select a size</option>
-                  {availableSizes.map(size => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={addSize}
-                  className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
-                >
-                  Add Size
-                </button>
-              </div>
-
-              {/* Size Tags *
-              {formData.sizes.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.sizes.map((size, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-gray-800 rounded-full text-sm"
-                    >
-                      {size}
-                      <button
-                        type="button"
-                        onClick={() => removeSize(size)}
-                        className="hover:text-red-500"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Colors *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Colors</h2>
-
-              {/* Color Input *
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="text"
-                  value={colorInput}
-                  onChange={(e) => setColorInput(e.target.value)}
-                  placeholder="Enter color (e.g., Red, Blue, Black)"
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                />
-                <button
-                  type="button"
-                  onClick={addColor}
-                  className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
-                >
-                  Add Color
-                </button>
-              </div>
-
-              {/* Color Tags *
-              {formData.colors.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.colors.map((color, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-gray-800 rounded-full text-sm"
-                    >
-                      {color}
-                      <button
-                        type="button"
-                        onClick={() => removeColor(color)}
-                        className="hover:text-red-500"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Tags *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Tags</h2>
-
-              {/* Tag Input *
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Enter a tag and press Enter or click Add"
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                />
-                <button
-                  type="button"
-                  onClick={addTag}
-                  className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
-                >
-                  Add Tag
-                </button>
-              </div>
-
-              {/* Tag List *
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-gray-800 rounded-full text-sm"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="hover:text-red-500"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Settings *
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Settings</h2>
-
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isFeatured"
-                    checked={formData.isFeatured}
-                    onChange={handleChange}
-                    className="w-5 h-5 bg-gray-800 border border-gray-700 rounded focus:ring-yellow-500 text-yellow-500"
-                  />
-                  <span className="text-gray-300">Feature this product on homepage</span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    checked={formData.isActive}
-                    onChange={handleChange}
-                    className="w-5 h-5 bg-gray-800 border border-gray-700 rounded focus:ring-yellow-500 text-yellow-500"
-                  />
-                  <span className="text-gray-300">Product is active and visible</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Form Actions *
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 py-4 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-black"></div>
-                    Creating Product...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-5 w-5" />
-                    Create Product
-                  </>
-                )}
-              </button>
-              <Link
-                href="/admin/products"
-                className="flex-1 py-4 border-2 border-gray-700 text-gray-300 font-bold rounded-lg hover:border-red-500 hover:text-red-500 transition-colors text-center"
-              >
-                Cancel
-              </Link>
-            </div>
-          </form>
-        </motion.div>
-      </div>
-    </div>
-  );
-}*/
-
-
-
-
-
-
-
-
-
-
-/*"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowLeft,
@@ -1992,261 +1247,82 @@ export default function NewProductPage() {
   );
 }*/
 
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { 
   ArrowLeft,
   Save,
-  X,
-  Plus,
-  Trash2,
   Package,
-  AlertCircle,
-  CheckCircle
+  DollarSign,
+  Layers,
+  Image as ImageIcon,
+  Tag,
+  Eye,
+  EyeOff
 } from "lucide-react";
+
 import { useAuth } from "@/components/AuthProvider";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { Notification } from "./Notification";
+import { TabNavigation } from "./TabNavigation";
 
-interface Category {
-  _id: string;
-  name: string;
-  slug: string;
-}
+import { ProductPricing } from "./ProductPricing";
+import { ProductInventory } from "./ProductInventory";
+import { ProductMedia } from "./ProductMedia";
+import { ProductAttributes } from "./ProductAttributes";
+import { ProductPreview } from "./ProductPreview";
 
-interface Size {
-  size: string;
-  system: "US" | "UK" | "EU";
-  stock: number;
-}
+import { useProductForm } from "./useProductForm";
+import { useProductInventory } from "./useProductInventory";
+import { useProductMedia } from "./useProductMedia";
+import { useProductTags } from "./useProductTags";
+import { useProductColors } from "./useProductColors";
 
-interface Color {
-  name: string;
-  hex: string;
-}
+import { SHOE_BRANDS } from "./product.constants";
+import { ProductBasicInfo } from "./ProductBasicInfo";
 
-interface Image {
-  url: string;
-  alt: string;
-  isPrimary: boolean;
-}
+/*const TABS = [
+  { id: 'basic', label: 'Basic Info', icon: Package },
+  { id: 'pricing', label: 'Pricing', icon: DollarSign },
+  { id: 'inventory', label: 'Inventory', icon: Layers },
+  { id: 'media', label: 'Media', icon: ImageIcon },
+  { id: 'attributes', label: 'Attributes', icon: Tag },
+] as const;
 
 export default function NewProductPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
-  
-  // Form state with proper structure
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    price: "",
-    comparePrice: "",
-    sku: "",
-    stock: "",
-    category: "",
-    subcategory: "",
-    brand: "",
-    isFeatured: false,
-    isActive: true,
-    tags: [] as string[],
-    sizes: [] as Size[],
-    colors: [] as Color[],
-    images: [] as Image[],
-  });
+  const [activeTab, setActiveTab] = useState<ActiveTab>('basic');
+  const [previewMode, setPreviewMode] = useState(false);
+  const [categories] = useState(CATEGORIES);
 
-  // Form inputs
-  const [tagInput, setTagInput] = useState("");
-  const [sizeInput, setSizeInput] = useState<Size>({ size: "", system: "US", stock: 1 });
-  const [colorInput, setColorInput] = useState<Color>({ name: "", hex: "#000000" });
-  const [imageInput, setImageInput] = useState<Image>({ url: "", alt: "", isPrimary: false });
+  // Custom hooks
+  const {
+    formData,
+    setFormData,
+    notification,
+    showNotification,
+    handleChange,
+    calculateProfit,
+    calculateMargin,
+    validateForm,
+  } = useProductForm();
 
-  // Available size systems
-  const sizeSystems = ["US", "UK", "EU"] as const;
-
-  // Size ranges by system
-  const sizeRanges = {
-    US: ["5", "6", "7", "8", "9", "10", "11", "12", "13"],
-    UK: ["3", "4", "5", "6", "7", "8", "9", "10", "11"],
-    EU: ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"],
-  };
+  const inventory = useProductInventory(formData, setFormData);
+  const media = useProductMedia(formData, setFormData);
+  const tags = useProductTags(formData, setFormData);
+  const colors = useProductColors(formData, setFormData);
 
   useEffect(() => {
-    // Redirect if not admin
     if (!authLoading && (!user || user.role !== "admin")) {
       router.push("/");
-      return;
     }
-
-    fetchCategories();
   }, [user, authLoading, router]);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/categories");
-      const data = await response.json();
-      setCategories(data.data || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-
-    // Auto-generate slug from name
-    if (name === 'name') {
-      setFormData(prev => ({
-        ...prev,
-        slug: value.toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '')
-      }));
-    }
-  };
-
-  const addTag = () => {
-    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tagInput.trim()]
-      }));
-      setTagInput("");
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  const addSize = () => {
-    if (sizeInput.size && sizeInput.system) {
-      // Check if size already exists
-      const exists = formData.sizes.some(
-        s => s.size === sizeInput.size && s.system === sizeInput.system
-      );
-      
-      if (!exists) {
-        setFormData(prev => ({
-          ...prev,
-          sizes: [...prev.sizes, { ...sizeInput }]
-        }));
-        setSizeInput({ size: "", system: "US", stock: 1 });
-      } else {
-        showNotification("error", "Size already added");
-      }
-    }
-  };
-
-  const removeSize = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      sizes: prev.sizes.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateSizeStock = (index: number, stock: number) => {
-    setFormData(prev => ({
-      ...prev,
-      sizes: prev.sizes.map((size, i) => 
-        i === index ? { ...size, stock } : size
-      )
-    }));
-  };
-
-  const addColor = () => {
-    if (colorInput.name && colorInput.hex) {
-      // Check if color already exists
-      const exists = formData.colors.some(c => c.name.toLowerCase() === colorInput.name.toLowerCase());
-      
-      if (!exists) {
-        setFormData(prev => ({
-          ...prev,
-          colors: [...prev.colors, { ...colorInput }]
-        }));
-        setColorInput({ name: "", hex: "#000000" });
-      } else {
-        showNotification("error", "Color already added");
-      }
-    }
-  };
-
-  const removeColor = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      colors: prev.colors.filter((_, i) => i !== index)
-    }));
-  };
-
-  const addImage = () => {
-    if (imageInput.url) {
-      // Check if image already exists
-      const exists = formData.images.some(img => img.url === imageInput.url);
-      
-      if (!exists) {
-        // If this is the first image, make it primary
-        const isPrimary = formData.images.length === 0 ? true : imageInput.isPrimary;
-        
-        setFormData(prev => ({
-          ...prev,
-          images: [...prev.images, { ...imageInput, isPrimary }]
-        }));
-        setImageInput({ url: "", alt: "", isPrimary: false });
-      } else {
-        showNotification("error", "Image URL already added");
-      }
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
-  };
-
-  const setPrimaryImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.map((img, i) => ({
-        ...img,
-        isPrimary: i === index
-      }))
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.name) return "Product name is required";
-    if (!formData.sku) return "SKU is required";
-    if (!formData.price || parseFloat(formData.price) <= 0) return "Valid price is required";
-    if (!formData.category) return "Category is required";
-    if (formData.images.length === 0) return "At least one image is required";
-    
-    // Validate category is a valid ObjectId
-    if (!/^[0-9a-fA-F]{24}$/.test(formData.category)) {
-      return "Please select a valid category from the list";
-    }
-    
-    return null;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -2258,21 +1334,294 @@ export default function NewProductPage() {
     }
 
     setSaving(true);
-    showNotification("success", "Creating product...");
+    showNotification("info", "Creating product...");
 
     try {
-      // Prepare data for API
+      const response = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price),
+          comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
+          costPerItem: formData.costPerItem ? parseFloat(formData.costPerItem) : null,
+          weight: formData.weight ? parseFloat(formData.weight) : null,
+          totalStock: formData.sizes.reduce((sum, s) => sum + s.stock, 0),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create product");
+      }
+
+      showNotification("success", "Product created successfully!");
+      setTimeout(() => {
+        router.push("/admin/products");
+        router.refresh();
+      }, 1500);
+    } catch (error: any) {
+      console.error("Error creating product:", error);
+      showNotification("error", error.message || "Failed to create product");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-6xl mx-auto"
+        >
+          {/* Header *
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/admin/products"
+                className="p-2 bg-gray-900 border border-gray-800 rounded-lg hover:border-yellow-500 transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-bold">
+                  ADD NEW <span className="text-yellow-500">PRODUCT</span>
+                </h1>
+                <p className="text-gray-400 mt-1">
+                  Create a new shoe listing in your catalog
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPreviewMode(!previewMode)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:border-yellow-500 transition-colors"
+            >
+              {previewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {previewMode ? "Edit Mode" : "Preview"}
+            </button>
+          </div>
+
+          {/* Notification *
+          <Notification notification={notification} />
+
+          {/* Tab Navigation *
+          <TabNavigation
+            tabs={TABS}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as ActiveTab)}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Form *
+            <div className="lg:col-span-2">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Info Tab *
+                {activeTab === 'basic' && (
+                  <ProductBasicInfo
+                    formData={formData}
+                    onChange={handleChange}
+                  />
+                )}
+
+                {/* Pricing Tab *
+                {activeTab === 'pricing' && (
+                  <ProductPricing
+                    formData={formData}
+                    onChange={handleChange}
+                    calculateProfit={calculateProfit}
+                    calculateMargin={calculateMargin}
+                  />
+                )}
+
+                {/* Inventory Tab *
+                {activeTab === 'inventory' && (
+                  <ProductInventory
+                    formData={formData}
+                    onChange={handleChange}
+                    inventory={inventory}
+                  />
+                )}
+
+                {/* Media Tab *
+                {activeTab === 'media' && (
+                  <ProductMedia
+                    formData={formData}
+                    media={media}
+                  />
+                )}
+
+                {/* Attributes Tab *
+                {activeTab === 'attributes' && (
+                  <ProductAttributes
+                    formData={formData}
+                    onChange={handleChange}
+                    colors={colors}
+                    tags={tags}
+                    categories={categories}
+                  />
+                )}
+
+                {/* Form Actions *
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 sticky bottom-0 bg-gradient-to-t from-black to-transparent pb-6">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex-1 py-4 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-black"></div>
+                        Creating Product...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-5 w-5" />
+                        Create Product
+                      </>
+                    )}
+                  </button>
+                  <Link
+                    href="/admin/products"
+                    className="flex-1 py-4 border-2 border-gray-700 text-gray-300 font-bold rounded-lg hover:border-red-500 hover:text-red-500 transition-colors text-center"
+                  >
+                    Cancel
+                  </Link>
+                </div>
+              </form>
+            </div>
+
+            {/* Preview Sidebar *
+            <div className="lg:col-span-1">
+              <ProductPreview formData={formData} />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}*/
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  parentCategory?: string;
+  isActive: boolean;
+  order: number;
+  subcategories: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+const TABS = [
+  { id: 'basic', label: 'Basic Info', icon: Package },
+  { id: 'pricing', label: 'Pricing', icon: DollarSign },
+  { id: 'inventory', label: 'Inventory', icon: Layers },
+  { id: 'media', label: 'Media', icon: ImageIcon },
+  { id: 'attributes', label: 'Attributes', icon: Tag },
+] as const;
+
+export default function NewProductPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'basic' | 'pricing' | 'inventory' | 'media' | 'attributes'>('basic');
+  const [previewMode, setPreviewMode] = useState(false);
+  //const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // Custom hooks
+  const {
+    formData,
+    setFormData,
+    notification,
+    showNotification,
+    handleChange,
+    calculateProfit,
+    calculateMargin,
+    validateForm,
+  } = useProductForm();
+
+  const inventory = useProductInventory(formData, setFormData);
+  const media = useProductMedia(formData, setFormData);
+  const tags = useProductTags(formData, setFormData);
+  const colors = useProductColors(formData, setFormData);
+
+  // Fetch categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        
+        if (data.success) {
+          setCategories(data.data);
+        } else {
+          setFetchError('Failed to load categories');
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setFetchError('Error loading categories');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!authLoading) {
+      fetchCategories();
+    }
+  }, [authLoading]);
+
+  useEffect(() => {
+    if (!authLoading && (!user || user.role !== "admin")) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      showNotification("error", validationError);
+      return;
+    }
+
+    setSaving(true);
+    showNotification("info", "Creating product...");
+
+    try {
+      // Prepare the data for submission
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
         comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
-        stock: parseInt(formData.stock) || 0,
-        sizes: formData.sizes,
-        colors: formData.colors,
-        images: formData.images,
+        costPerItem: formData.costPerItem ? parseFloat(formData.costPerItem) : null,
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        // Use the actual category ID from MongoDB
+        category: formData.category,
+        // Calculate total stock
+        stock: formData.sizes.reduce((sum, s) => sum + s.stock, 0),
+        // Ensure images have proper structure
+        images: formData.images.map(img => ({
+          url: img.url,
+          alt: img.alt || formData.name,
+          isPrimary: img.isPrimary,
+        })),
       };
 
-      console.log("Submitting product data:", productData);
+      console.log('Submitting product data:', productData);
 
       const response = await fetch("/api/admin/products", {
         method: "POST",
@@ -2287,8 +1636,6 @@ export default function NewProductPage() {
       }
 
       showNotification("success", "Product created successfully!");
-      
-      // Redirect after a short delay
       setTimeout(() => {
         router.push("/admin/products");
         router.refresh();
@@ -2301,21 +1648,8 @@ export default function NewProductPage() {
     }
   };
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
-          </div>
-        </div>
-      </div>
-    );
+  if (authLoading || loading) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -2324,587 +1658,138 @@ export default function NewProductPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl mx-auto"
+          className="max-w-6xl mx-auto"
         >
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <Link
-              href="/admin/products"
-              className="p-2 bg-gray-900 border border-gray-800 rounded-lg hover:border-yellow-500 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold">
-                ADD NEW <span className="text-yellow-500">PRODUCT</span>
-              </h1>
-              <p className="text-gray-400 mt-1">
-                Create a new product in your catalog
-              </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/admin/products"
+                className="p-2 bg-gray-900 border border-gray-800 rounded-lg hover:border-yellow-500 transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-bold">
+                  ADD NEW <span className="text-yellow-500">PRODUCT</span>
+                </h1>
+                <p className="text-gray-400 mt-1">
+                  Create a new shoe listing in your catalog
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setPreviewMode(!previewMode)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:border-yellow-500 transition-colors"
+            >
+              {previewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {previewMode ? "Edit Mode" : "Preview"}
+            </button>
           </div>
 
-          {/* Notification */}
-          {notification && (
-            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
-              notification.type === 'success' ? 'bg-green-500/10 border border-green-500/50 text-green-500' :
-              'bg-red-500/10 border border-red-500/50 text-red-500'
-            }`}>
-              {notification.type === 'success' ? (
-                <CheckCircle className="h-5 w-5 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              )}
-              <p>{notification.message}</p>
+          {/* Error message if categories failed to load */}
+          {fetchError && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500">
+              <p>{fetchError}. Please refresh the page or contact support.</p>
             </div>
           )}
 
-          {/* Main Form */}
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Basic Information */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <Package className="h-5 w-5 text-yellow-500" />
-                Basic Information
-              </h2>
+          {/* Notification */}
+          <Notification notification={notification} />
 
-              <div className="space-y-4">
-                {/* Product Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Product Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
+          {/* Tab Navigation */}
+          <TabNavigation
+            tabs={TABS}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as any)}
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Form */}
+            <div className="lg:col-span-2">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Info Tab */}
+                {activeTab === 'basic' && (
+                  <ProductBasicInfo
+                    formData={formData}
                     onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="e.g., Air Max 270"
+                    brands={SHOE_BRANDS}
                   />
-                </div>
-
-                {/* Slug */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Slug
-                  </label>
-                  <input
-                    type="text"
-                    name="slug"
-                    value={formData.slug}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="auto-generated-from-name"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    URL-friendly version of the name
-                  </p>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={4}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white resize-none"
-                    placeholder="Product description..."
-                  />
-                </div>
-
-                {/* SKU and Brand */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      SKU <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="sku"
-                      value={formData.sku}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                      placeholder="e.g., NIKE-AIRMAX-001"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Brand
-                    </label>
-                    <input
-                      type="text"
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                      placeholder="e.g., Nike, Adidas"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Pricing */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Pricing</h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Price (KSh) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="0.00"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Compare at Price
-                  </label>
-                  <input
-                    type="number"
-                    name="comparePrice"
-                    value={formData.comparePrice}
-                    onChange={handleChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="0.00"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Original price for showing discounts
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Category */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Category</h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Category <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map(cat => (
-                      <option key={cat._id} value={cat._id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Subcategory
-                  </label>
-                  <input
-                    type="text"
-                    name="subcategory"
-                    value={formData.subcategory}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    placeholder="e.g., Running Shoes"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Images */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Product Images</h2>
-
-              {/* Image Input Form */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Image URL
-                  </label>
-                  <input
-                    type="url"
-                    value={imageInput.url}
-                    onChange={(e) => setImageInput({ ...imageInput, url: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Alt Text
-                  </label>
-                  <input
-                    type="text"
-                    value={imageInput.alt}
-                    onChange={(e) => setImageInput({ ...imageInput, alt: e.target.value })}
-                    placeholder="Image description"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mb-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={imageInput.isPrimary}
-                    onChange={(e) => setImageInput({ ...imageInput, isPrimary: e.target.checked })}
-                    className="w-4 h-4 bg-gray-800 border border-gray-700 rounded focus:ring-yellow-500 text-yellow-500"
-                  />
-                  <span className="text-sm text-gray-300">Set as primary image</span>
-                </label>
-
-                <button
-                  type="button"
-                  onClick={addImage}
-                  disabled={!imageInput.url}
-                  className="px-6 py-2 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Add Image
-                </button>
-              </div>
-
-              {/* Image Preview Grid */}
-              {formData.images.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="relative group">
-                      <div className="relative aspect-square bg-gray-800 rounded-lg overflow-hidden">
-                        <Image
-                          src={img.url}
-                          alt={img.alt || `Product image ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Image overlay buttons */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                        {!img.isPrimary && (
-                          <button
-                            type="button"
-                            onClick={() => setPrimaryImage(index)}
-                            className="p-1 bg-yellow-500 rounded-full hover:bg-yellow-400"
-                            title="Set as primary"
-                          >
-                            <CheckCircle className="h-4 w-4 text-black" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="p-1 bg-red-500 rounded-full hover:bg-red-400"
-                          title="Remove image"
-                        >
-                          <Trash2 className="h-4 w-4 text-white" />
-                        </button>
-                      </div>
-
-                      {/* Primary badge */}
-                      {img.isPrimary && (
-                        <span className="absolute top-2 left-2 px-2 py-1 bg-yellow-500 text-black text-xs font-bold rounded">
-                          Primary
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {formData.images.length === 0 && (
-                <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center">
-                  <p className="text-gray-400">No images added yet</p>
-                  <p className="text-sm text-gray-600">Add at least one image</p>
-                </div>
-              )}
-            </div>
-
-            {/* Sizes */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Sizes & Inventory</h2>
-
-              {/* Size Input Form */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Size System
-                  </label>
-                  <select
-                    value={sizeInput.system}
-                    onChange={(e) => setSizeInput({ ...sizeInput, system: e.target.value as "US" | "UK" | "EU" })}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  >
-                    {sizeSystems.map(sys => (
-                      <option key={sys} value={sys}>{sys}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Size
-                  </label>
-                  <select
-                    value={sizeInput.size}
-                    onChange={(e) => setSizeInput({ ...sizeInput, size: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  >
-                    <option value="">Select size</option>
-                    {sizeRanges[sizeInput.system].map(size => (
-                      <option key={size} value={size}>{size}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Stock
-                  </label>
-                  <input
-                    type="number"
-                    value={sizeInput.stock}
-                    onChange={(e) => setSizeInput({ ...sizeInput, stock: parseInt(e.target.value) || 0 })}
-                    min="0"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  />
-                </div>
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={addSize}
-                    disabled={!sizeInput.size}
-                    className="w-full px-4 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Add Size
-                  </button>
-                </div>
-              </div>
-
-              {/* Size List */}
-              {formData.sizes.length > 0 && (
-                <div className="space-y-2">
-                  {formData.sizes.map((size, index) => (
-                    <div key={index} className="flex items-center gap-2 p-3 bg-gray-800/50 rounded-lg">
-                      <span className="w-20 font-medium">{size.system} {size.size}</span>
-                      <div className="flex-1 flex items-center gap-2">
-                        <span className="text-sm text-gray-400">Stock:</span>
-                        <input
-                          type="number"
-                          value={size.stock}
-                          onChange={(e) => updateSizeStock(index, parseInt(e.target.value) || 0)}
-                          min="0"
-                          className="w-20 px-2 py-1 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-yellow-500 text-white"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeSize(index)}
-                        className="p-1 text-red-500 hover:text-red-400"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Colors */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Colors</h2>
-
-              {/* Color Input Form */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Color Name
-                  </label>
-                  <input
-                    type="text"
-                    value={colorInput.name}
-                    onChange={(e) => setColorInput({ ...colorInput, name: e.target.value })}
-                    placeholder="e.g., Black, Red, Blue"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Hex Code
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="color"
-                      value={colorInput.hex}
-                      onChange={(e) => setColorInput({ ...colorInput, hex: e.target.value })}
-                      className="w-12 h-12 bg-gray-800 border border-gray-700 rounded-lg cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={colorInput.hex}
-                      onChange={(e) => setColorInput({ ...colorInput, hex: e.target.value })}
-                      placeholder="#000000"
-                      className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                    />
-                  </div>
-                </div>
-                <div className="flex items-end">
-                  <button
-                    type="button"
-                    onClick={addColor}
-                    disabled={!colorInput.name}
-                    className="w-full px-4 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Add Color
-                  </button>
-                </div>
-              </div>
-
-              {/* Color List */}
-              {formData.colors.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.colors.map((color, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-full text-sm"
-                      style={{ borderLeft: `4px solid ${color.hex}` }}
-                    >
-                      {color.name}
-                      <button
-                        type="button"
-                        onClick={() => removeColor(index)}
-                        className="hover:text-red-500"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Tags</h2>
-
-              {/* Tag Input */}
-              <div className="flex gap-2 mb-4">
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                  placeholder="Enter a tag and press Enter or click Add"
-                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                />
-                <button
-                  type="button"
-                  onClick={addTag}
-                  disabled={!tagInput.trim()}
-                  className="px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50"
-                >
-                  Add Tag
-                </button>
-              </div>
-
-              {/* Tag List */}
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-gray-800 rounded-full text-sm"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="hover:text-red-500"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Settings */}
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6">
-              <h2 className="text-xl font-bold mb-6">Settings</h2>
-
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isFeatured"
-                    checked={formData.isFeatured}
-                    onChange={handleChange}
-                    className="w-5 h-5 bg-gray-800 border border-gray-700 rounded focus:ring-yellow-500 text-yellow-500"
-                  />
-                  <span className="text-gray-300">Feature this product on homepage</span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    checked={formData.isActive}
-                    onChange={handleChange}
-                    className="w-5 h-5 bg-gray-800 border border-gray-700 rounded focus:ring-yellow-500 text-yellow-500"
-                  />
-                  <span className="text-gray-300">Product is active and visible</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Form Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 py-4 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-black"></div>
-                    Creating Product...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-5 w-5" />
-                    Create Product
-                  </>
                 )}
-              </button>
-              <Link
-                href="/admin/products"
-                className="flex-1 py-4 border-2 border-gray-700 text-gray-300 font-bold rounded-lg hover:border-red-500 hover:text-red-500 transition-colors text-center"
-              >
-                Cancel
-              </Link>
+
+                {/* Pricing Tab */}
+                {activeTab === 'pricing' && (
+                  <ProductPricing
+                    formData={formData}
+                    onChange={handleChange}
+                    calculateProfit={calculateProfit}
+                    calculateMargin={calculateMargin}
+                  />
+                )}
+
+                {/* Inventory Tab */}
+                {activeTab === 'inventory' && (
+                  <ProductInventory
+                    formData={formData}
+                    onChange={handleChange}
+                    inventory={inventory}
+                  />
+                )}
+
+                {/* Media Tab */}
+                {activeTab === 'media' && (
+                  <ProductMedia
+                    formData={formData}
+                    media={media}
+                  />
+                )}
+
+                {/* Attributes Tab */}
+                {activeTab === 'attributes' && (
+                  <ProductAttributes
+                    formData={formData}
+                    onChange={handleChange}
+                    colors={colors}
+                    tags={tags}
+                    categories={categories}
+                  />
+                )}
+
+                {/* Form Actions */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 sticky bottom-0 bg-gradient-to-t from-black to-transparent pb-6">
+                  <button
+                    type="submit"
+                    disabled={saving || !categories.length}
+                    className="flex-1 py-4 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-black"></div>
+                        Creating Product...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-5 w-5" />
+                        Create Product
+                      </>
+                    )}
+                  </button>
+                  <Link
+                    href="/admin/products"
+                    className="flex-1 py-4 border-2 border-gray-700 text-gray-300 font-bold rounded-lg hover:border-red-500 hover:text-red-500 transition-colors text-center"
+                  >
+                    Cancel
+                  </Link>
+                </div>
+              </form>
             </div>
-          </form>
+
+            {/* Preview Sidebar */}
+            <div className="lg:col-span-1">
+              <ProductPreview formData={formData} />
+            </div>
+          </div>
         </motion.div>
       </div>
     </div>
