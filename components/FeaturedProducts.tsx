@@ -4,7 +4,7 @@ import Image from "next/image"
 import { ArrowRight, ShoppingBag, Star } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-interface Product {
+/*interface Product {
   _id: string
   id: number
   name: string
@@ -16,10 +16,34 @@ interface Product {
   category_id?: number
   subcategory_id?: number
   brand_id?: number
+}*/
+
+interface ProductImage {
+  url: string
+  alt?: string
+  isPrimary?: boolean
+}
+
+interface Product {
+  _id: string
+  name: string
+  description?: string
+  price: number
+  stock: number
+  images?: ProductImage[]
+  isFeatured?: boolean
 }
 
 // TODO: Update this with your actual image base URL when ready
 const IMAGE_BASE_URL = process.env.NEXT_PUBLIC_IMAGE_URL || ''
+const getPrimaryImage = (product: Product): string | null => {
+  if (!product.images || product.images.length === 0) return null
+
+  // Try to find primary image
+  const primary = product.images.find(img => img.isPrimary)
+
+  return primary?.url || product.images[0].url
+}
 
 const FeaturedProducts = () => {
   const [products, setProducts] = useState<Product[]>([])
@@ -175,7 +199,8 @@ useEffect(() => {
         {/* Products Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {products.map((product, index) => {
-            const imageUrl = getImageUrl(product.image)
+            //const imageUrl = getImageUrl(product.image)
+            const imageUrl = getPrimaryImage(product)
             
             return (
               <div
