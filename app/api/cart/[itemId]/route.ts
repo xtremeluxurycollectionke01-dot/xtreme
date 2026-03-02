@@ -98,21 +98,18 @@ export async function DELETE(
   }
 }*/
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import { requireAuth } from "@/lib/auth";
 
-type RouteContext = {
-  params: Promise<{ itemId: string }>;
-};
-
 export async function PUT(
-  request: NextRequest,
-  context: RouteContext
+  request: Request,
+  { params }: { params: { itemId: string } }
 ) {
   try {
-    const user = await requireAuth(request);
+    // Authenticate user
+    const user = await requireAuth(request as any);
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -120,9 +117,8 @@ export async function PUT(
       );
     }
 
-    const { itemId } = await context.params;
+    // Parse quantity from request
     const { quantity } = await request.json();
-
     if (quantity < 1) {
       return NextResponse.json(
         { success: false, error: "Quantity must be at least 1" },
@@ -130,8 +126,10 @@ export async function PUT(
       );
     }
 
+    // Connect to DB
     await dbConnect();
 
+    // Find user's cart
     const cart = await Cart.findOne({ user: user._id });
     if (!cart) {
       return NextResponse.json(
@@ -140,8 +138,9 @@ export async function PUT(
       );
     }
 
+    // Find item in cart safely
     const itemIndex = cart.items.findIndex(
-      (item) => item._id.toString() === itemId
+      (item) => item._id && item._id.toString() === params.itemId
     );
 
     if (itemIndex === -1) {
@@ -151,7 +150,10 @@ export async function PUT(
       );
     }
 
+    // Update quantity
     cart.items[itemIndex].quantity = quantity;
+
+    // Save cart and populate products
     await cart.save();
     await cart.populate("items.product");
 
@@ -165,11 +167,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  context: RouteContext
+  request: Request,
+  { params }: { params: { itemId: string } }
 ) {
   try {
-    const user = await requireAuth(request);
+    // Authenticate user
+    const user = await requireAuth(request as any);
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -177,10 +180,10 @@ export async function DELETE(
       );
     }
 
-    const { itemId } = await context.params;
-
+    // Connect to DB
     await dbConnect();
 
+    // Find user's cart
     const cart = await Cart.findOne({ user: user._id });
     if (!cart) {
       return NextResponse.json(
@@ -189,10 +192,12 @@ export async function DELETE(
       );
     }
 
+    // Remove item safely
     cart.items = cart.items.filter(
-      (item) => item._id.toString() !== itemId
+      (item) => item._id && item._id.toString() !== params.itemId
     );
 
+    // Save cart and populate products
     await cart.save();
     await cart.populate("items.product");
 
