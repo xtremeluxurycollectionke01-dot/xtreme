@@ -441,7 +441,7 @@ export default function CheckoutPage() {
                 <h2 className="text-xl font-bold mb-6">Your Order</h2>
 
                 <div className="space-y-4 mb-6">
-                  {cart.items.map((item) => (
+                  {/*{cart.items.map((item) => (
                     <div key={item._id} className="flex gap-3">
                       <div className="relative w-16 h-16 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.images?.[0] && (
@@ -463,7 +463,37 @@ export default function CheckoutPage() {
                         </p>
                       </div>
                     </div>
-                  ))}
+                  ))}*/}
+                  {cart.items.map((item) => {
+                  const imageUrl = item.product.images?.[0]?.url || null;
+                  return (
+                    <div key={item._id} className="flex gap-3">
+                      <div className="relative w-16 h-16 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={item.product.images[0]?.alt || item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Truck className="h-8 w-8 text-gray-600" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{item.product.name}</p>
+                        <p className="text-xs text-gray-400">
+                          Qty: {item.quantity} {item.size && `| Size: ${item.size}`}
+                        </p>
+                        <p className="text-yellow-500 text-sm font-bold mt-1">
+                          KSh {item.price.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
                 </div>
 
                 <div className="border-t border-gray-800 pt-4">

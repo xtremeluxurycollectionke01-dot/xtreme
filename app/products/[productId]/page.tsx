@@ -799,6 +799,17 @@ export default function ProductPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              {/*<AddToCartButton
+                productId={product._id}
+                productName={product.name}
+                stock={product.stock}
+                price={product.price}
+                size={selectedSize}
+                color={selectedColor}
+                quantity={quantity}
+                className="flex-1"
+              />*/}
+              
               <AddToCartButton
                 productId={product._id}
                 productName={product.name}
@@ -809,7 +820,6 @@ export default function ProductPage() {
                 quantity={quantity}
                 className="flex-1"
               />
-              
               <button
                 onClick={() => setAddedToWishlist(!addedToWishlist)}
                 className="px-6 py-3 border-2 border-gray-700 rounded-lg hover:border-yellow-500 transition-colors group"

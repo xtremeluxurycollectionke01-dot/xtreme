@@ -94,6 +94,7 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               <AnimatePresence>
                 {cart.items.map((item) => (
+                
                   <motion.div
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -104,10 +105,22 @@ export default function CartPage() {
                     <div className="flex flex-col sm:flex-row gap-4">
                       {/* Product Image */}
                       <div className="relative w-full sm:w-24 h-24 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                        {item.product.images?.[0] ? (
+                        {/*{item.product.images?.[0] ? (
                           <Image
                             src={item.product.images[0]}
                             alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <ShoppingBag className="h-8 w-8 text-gray-600" />
+                          </div>
+                        )}*/}
+                        {item.product.images?.[0]?.url ? (
+                          <Image
+                            src={item.product.images[0].url}
+                            alt={item.product.images[0].alt || item.product.name}
                             fill
                             className="object-cover"
                           />
