@@ -157,10 +157,11 @@ export async function POST(request: Request) {
 }*/
 
 
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/auth";
+import "@/models/Category"; 
 
 export async function POST(request: Request) {
   try {
@@ -262,6 +263,143 @@ export async function POST(request: Request) {
       );
     }
 
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to create product" },
+      { status: 500 }
+    );
+  }
+}*/
+
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "@/lib/mongodb";
+import Product from "@/models/Product";
+import { requireAdmin } from "@/lib/auth";
+import "@/models/Category";
+
+// GET /api/admin/products - List all products with pagination and search
+export async function GET(request: NextRequest) {
+  try {
+    // Check admin auth
+    const user = await requireAdmin(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    // Connect to DB
+    await dbConnect();
+
+    // Get query params
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status"); // optional filter
+    const category = searchParams.get("category"); // optional filter
+
+    // Build query
+    const query: any = {};
+
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { sku: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Filter by status (active/inactive)
+    if (status === "active") {
+      query.isActive = true;
+    } else if (status === "inactive") {
+      query.isActive = false;
+    }
+
+    // Filter by category
+    if (category) {
+      query.category = category;
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Fetch products with pagination
+    const products = await Product.find(query)
+      .populate("category", "name slug")
+      .sort({ createdAt: -1 }) // Newest first
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    // Get total count for pagination
+    const total = await Product.countDocuments(query);
+
+    return NextResponse.json({
+      success: true,
+      //products,
+      data: products,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+        hasMore: page * limit < total,
+      },
+    }, { status: 200 });
+
+  } catch (error: any) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to fetch products" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/admin/products - Create new product
+export async function POST(request: NextRequest) {
+  try {
+    const user = await requireAdmin(request);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    await dbConnect();
+    const body = await request.json();
+
+    // Validate required fields
+    if (!body.name || !body.sku || !body.price || !body.category) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Check for duplicate SKU
+    const existingProduct = await Product.findOne({ sku: body.sku });
+    if (existingProduct) {
+      return NextResponse.json(
+        { success: false, error: "SKU already exists" },
+        { status: 409 }
+      );
+    }
+
+    const product = await Product.create(body);
+    await product.populate("category");
+
+    return NextResponse.json(
+      { success: true, product, message: "Product created successfully" },
+      { status: 201 }
+    );
+
+  } catch (error: any) {
+    console.error("Error creating product:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to create product" },
       { status: 500 }

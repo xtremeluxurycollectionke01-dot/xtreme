@@ -17,13 +17,21 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 
+interface ProductImage {
+  url: string;
+  publicId?: string;
+  alt?: string;
+  isPrimary?: boolean;
+}
+
 interface Product {
   _id: string;
   name: string;
   slug: string;
   price: number;
   comparePrice?: number;
-  images: string[];
+  images: ProductImage[];
+ // images: string[];
   stock: number;
   sku: string;
   category: any;
@@ -221,14 +229,14 @@ export default function AdminProducts() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="relative w-12 h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-                              {product.images[0] ? (
-                                <Image
-                                  src={product.images[0]}
-                                  alt={product.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
+                                {product.images?.[0]?.url ? (
+                                  <Image
+                                    src={product.images[0].url}
+                                    alt={product.images[0].alt || product.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <Package className="h-6 w-6 text-gray-600" />
                                 </div>
