@@ -627,7 +627,7 @@ const FeaturedProducts = () => {
         {/* View All Button - Matching Hero/Collections CTA */}
         <div className="mt-10 sm:mt-12 lg:mt-16 text-center">
           <Link 
-            href="/shop"
+            href="/products"
             className="inline-flex items-center gap-2 px-8 py-4 border-2 border-yellow-500 text-yellow-500 text-base sm:text-lg font-bold rounded-lg hover:bg-yellow-500 hover:text-black transition-all"
           >
             View All Products
