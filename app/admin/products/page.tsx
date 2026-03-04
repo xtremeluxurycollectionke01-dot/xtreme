@@ -1,4 +1,4 @@
-"use client";
+/*"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -150,7 +150,7 @@ export default function AdminProducts() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-7xl mx-auto"
         >
-          {/* Header */}
+          {/* Header *
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold mb-2">
@@ -169,7 +169,7 @@ export default function AdminProducts() {
             </Link>
           </div>
 
-          {/* Notification */}
+          {/* Notification *
           {notification && (
             <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
               notification.type === 'success' ? 'bg-green-500/10 border border-green-500/50 text-green-500' :
@@ -180,7 +180,7 @@ export default function AdminProducts() {
             </div>
           )}
 
-          {/* Search Bar */}
+          {/* Search Bar *
           <div className="mb-6">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -194,7 +194,7 @@ export default function AdminProducts() {
             </div>
           </div>
 
-          {/* Products Table */}
+          {/* Products Table *
           <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -324,7 +324,7 @@ export default function AdminProducts() {
               </table>
             </div>
 
-            {/* Pagination */}
+            {/* Pagination *
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-6 py-4 border-t border-gray-800">
                 <button
@@ -348,6 +348,448 @@ export default function AdminProducts() {
             )}
           </div>
         </motion.div>
+      </div>
+    </div>
+  );
+}*/
+
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { 
+  Plus, 
+  Search, 
+  Edit, 
+  Trash2, 
+  Package,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+
+interface ProductImage {
+  url: string;
+  publicId?: string;
+  alt?: string;
+  isPrimary?: boolean;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  comparePrice?: number;
+  images: ProductImage[];
+  stock: number;
+  sku: string;
+  category: any;
+  isActive: boolean;
+  createdAt: string;
+}
+
+interface PaginationResponse {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+  hasMore: boolean;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: Product[];
+  pagination: PaginationResponse;
+}
+
+export default function AdminProducts() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState<PaginationResponse>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 1,
+    hasMore: false
+  });
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    // Redirect if not admin
+    if (!authLoading && (!user || user.role !== "admin")) {
+      router.push("/");
+      return;
+    }
+  }, [user, authLoading, router]);
+
+  // Fetch products when page or search changes
+  useEffect(() => {
+    if (user?.role === "admin") {
+      fetchProducts();
+    }
+  }, [user, currentPage, searchTerm]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      // Build query params
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString()
+      });
+      
+      if (searchTerm) {
+        params.append('search', searchTerm);
+      }
+
+      console.log("Fetching:", `/api/admin/products?${params.toString()}`);
+      
+      const response = await fetch(`/api/admin/products?${params.toString()}`);
+      const result: ApiResponse = await response.json();
+      
+      console.log("API Response:", result);
+      
+      if (result.success) {
+        setProducts(result.data || []);
+        setPagination(result.pagination);
+      } else {
+        throw new Error('Failed to fetch products');
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      showNotification("error", "Failed to fetch products");
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete product");
+      }
+
+      // Refresh products after deletion
+      await fetchProducts();
+      showNotification("success", "Product deleted successfully");
+      setDeleteConfirm(null);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      showNotification("error", error instanceof Error ? error.message : "Failed to delete product");
+    }
+  };
+
+  const handleToggleActive = async (productId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update product");
+      }
+
+      // Update local state
+      setProducts(products.map(p => 
+        p._id === productId ? { ...p, isActive: !currentStatus } : p
+      ));
+      showNotification("success", `Product ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      showNotification("error", error instanceof Error ? error.message : "Failed to update product");
+    }
+  };
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on new search
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+                MANAGE <span className="text-yellow-500">PRODUCTS</span>
+              </h1>
+              <p className="text-gray-400">
+                Add, edit, and manage your product catalog
+              </p>
+            </div>
+            <Link
+              href="/admin/products/new"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-black font-bold rounded-lg hover:bg-yellow-400 transition-colors"
+            >
+              <Plus className="h-5 w-5" />
+              Add New Product
+            </Link>
+          </div>
+
+          {/* Notification */}
+          {notification && (
+            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
+              notification.type === 'success' ? 'bg-green-500/10 border border-green-500/50 text-green-500' :
+              'bg-red-500/10 border border-red-500/50 text-red-500'
+            }`}>
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <p>{notification.message}</p>
+            </div>
+          )}
+
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search products by name or SKU..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="w-full pl-12 pr-4 py-3 bg-gray-900 border border-gray-800 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
+              />
+            </div>
+            {searchTerm && (
+              <p className="mt-2 text-sm text-gray-500">
+                Searching for: "{searchTerm}" • {pagination.total} result{pagination.total !== 1 ? 's' : ''} found
+              </p>
+            )}
+          </div>
+
+          {/* Products Table */}
+          <div className="bg-gray-900/50 border border-gray-800 rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-800 bg-gray-900/50">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">Product</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">SKU</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">Price</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">Stock</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-400">Status</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold text-gray-400">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center">
+                        <div className="flex justify-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : products.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                        {searchTerm ? (
+                          <div>
+                            <p>No products found matching "{searchTerm}"</p>
+                            <button
+                              onClick={() => {
+                                setSearchTerm("");
+                                setCurrentPage(1);
+                              }}
+                              className="mt-2 text-yellow-500 hover:text-yellow-400"
+                            >
+                              Clear search
+                            </button>
+                          </div>
+                        ) : (
+                          <div>
+                            <p>No products found</p>
+                            <Link
+                              href="/admin/products/new"
+                              className="mt-2 inline-block text-yellow-500 hover:text-yellow-400"
+                            >
+                              Add your first product
+                            </Link>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ) : (
+                    products.map((product) => (
+                      <tr key={product._id} className="border-b border-gray-800 hover:bg-gray-800/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-12 h-12 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+                              {product.images?.[0]?.url ? (
+                                <Image
+                                  src={product.images[0].url}
+                                  alt={product.images[0].alt || product.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <Package className="h-6 w-6 text-gray-600" />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-medium">{product.name}</h3>
+                              <p className="text-xs text-gray-500">
+                                {product.category?.name || 'Uncategorized'}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-400">{product.sku}</td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <span className="font-bold text-yellow-500">
+                              KSh {product.price.toLocaleString()}
+                            </span>
+                            {product.comparePrice && (
+                              <span className="ml-2 text-xs text-gray-500 line-through">
+                                KSh {product.comparePrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            product.stock > 10 ? 'bg-green-500/20 text-green-400' :
+                            product.stock > 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
+                          }`}>
+                            {product.stock} units
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => handleToggleActive(product._id, product.isActive)}
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              product.isActive 
+                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
+                                : 'bg-gray-500/20 text-gray-400 hover:bg-gray-500/30'
+                            } transition-colors`}
+                          >
+                            {product.isActive ? 'Active' : 'Inactive'}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/admin/products/${product._id}/edit`}
+                              className="p-2 text-gray-400 hover:text-yellow-500 transition-colors"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                            {deleteConfirm === product._id ? (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleDelete(product._id)}
+                                  className="p-2 text-green-500 hover:text-green-400 transition-colors"
+                                  title="Confirm delete"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm(null)}
+                                  className="p-2 text-red-500 hover:text-red-400 transition-colors"
+                                  title="Cancel"
+                                >
+                                  ✗
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setDeleteConfirm(product._id)}
+                                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                title="Delete product"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {pagination.pages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-gray-800">
+                <div className="text-sm text-gray-400">
+                  Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, pagination.total)} of {pagination.total} products
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 text-gray-400 hover:text-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  
+                  {/* Simple page indicator */}
+                  <span className="text-sm text-gray-400 px-4">
+                    Page {currentPage} of {pagination.pages}
+                  </span>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={!pagination.hasMore}
+                    className="p-2 text-gray-400 hover:text-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
