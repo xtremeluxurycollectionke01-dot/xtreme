@@ -371,7 +371,7 @@ const HeroSection = () => {
               </div>
 
               {/* Floating Desktop Elements */}
-              <div className="absolute -top-6 -right-6 w-32 h-32 bg-black border border-yellow-500/30 rounded-2xl p-4 z-10 hidden lg:block">
+              {/*<div className="absolute -top-6 -right-6 w-32 h-32 bg-black border border-yellow-500/30 rounded-2xl p-4 z-10 hidden lg:block">
                 <div className="relative w-full h-full">
                   <Image src="/images/image3.jpg" alt="Limited Edition" fill className="object-cover rounded-lg" />
                 </div>
@@ -380,7 +380,7 @@ const HeroSection = () => {
                 <div className="relative w-full h-full">
                   <Image src="/images/image2.jpg" alt="Premium Materials" fill className="object-cover rounded-lg" />
                 </div>
-              </div>
+              </div>*/}
 
             </div>
           </div>
@@ -396,19 +396,19 @@ const HeroSection = () => {
               2026 COLLECTION
             </span>
             <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
-              ELEVATE YOUR <span className="text-yellow-500">STYLE</span> GAME
+              ELEVATE YOUR <span className="text-yellow-500">SHOE</span> GAME
             </h1>
             <p className="text-xl text-gray-400 mb-8 max-w-xl">
-              Discover exclusive designer footwear and apparel crafted for the modern elite. Where luxury meets street style.
+              Discover exclusive footwear and apparel crafted for the modern elite. Where luxury meets style.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button className="px-8 py-4 gradient-yellow text-black font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 group">
                 SHOP COLLECTION
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
-              <button className="px-8 py-4 border-2 border-yellow-500 text-yellow-500 font-bold rounded-lg hover:bg-yellow-500 hover:text-black transition-all">
+              {/*<button className="px-8 py-4 border-2 border-yellow-500 text-yellow-500 font-bold rounded-lg hover:bg-yellow-500 hover:text-black transition-all">
                 EXPLORE DESIGNERS
-              </button>
+              </button>*/}
             </div>
           </motion.div>
 

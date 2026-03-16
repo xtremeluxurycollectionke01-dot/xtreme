@@ -211,7 +211,7 @@ const Navbar = () => {
     { label: "Clothing", href: "/clothing" },
     { label: "Collections", href: "/collections" },
     { label: "New Arrivals", href: "/new" },
-    { label: "Designers", href: "/designers" },
+    //{ label: "Designers", href: "/designers" },
   ];
 
   // Don't show anything while loading auth state
