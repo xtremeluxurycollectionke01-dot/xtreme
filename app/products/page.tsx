@@ -17,6 +17,8 @@ import {
   Filter
 } from 'lucide-react'
 import AddToCartButton from "@/components/AddToCartButton"
+import Navbar from '@/components/NavBar'
+import Footer from '@/components/Footer'
 
 interface ProductImage {
   url: string
@@ -315,6 +317,8 @@ export default function ProductsPage() {
   }
 
   return (
+    <div>
+      <Navbar />
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
       {/* Hero Section */}
       <div className="relative pt-24 pb-16 overflow-hidden">
@@ -324,7 +328,7 @@ export default function ProductsPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight">
-              OUR <span className="text-yellow-500">COLLECTION</span>
+              OUR <span className="text-yellow-500">PRODUCTS</span>
             </h1>
             <p className="text-gray-400 text-lg sm:text-xl lg:text-2xl">
               Discover premium footwear crafted for style, comfort, and performance
@@ -777,6 +781,8 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
+    </div>
+    <Footer />
     </div>
   )
 }
