@@ -508,7 +508,7 @@ const FeaturedProducts = () => {
             FEATURED <span className="text-yellow-500">PRODUCTS</span>
           </h2>
           <p className="text-gray-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
-            Discover our latest premium designer footwear collection
+            Discover our latest premium footwear collection
           </p>
         </div>
 

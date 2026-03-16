@@ -838,12 +838,12 @@ export default function ProductPage() {
             <div className="border-t border-gray-800 pt-6 space-y-3">
               <div className="flex items-center gap-3 text-gray-400">
                 <Truck className="h-5 w-5 text-yellow-500" />
-                <span>Free shipping on orders over KSh 10,000</span>
+                <span>Free shipping on orders over KSh 25,000</span>
               </div>
-              <div className="flex items-center gap-3 text-gray-400">
+              {/*<div className="flex items-center gap-3 text-gray-400">
                 <Shield className="h-5 w-5 text-yellow-500" />
                 <span>2 year warranty on all products</span>
-              </div>
+              </div>*/}
               <div className="flex items-center gap-3 text-gray-400">
                 <RotateCcw className="h-5 w-5 text-yellow-500" />
                 <span>30-day return policy</span>

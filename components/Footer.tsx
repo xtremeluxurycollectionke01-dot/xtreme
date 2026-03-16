@@ -21,7 +21,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
-              Redefining luxury streetwear since 2018. We bring you exclusive 
+              Redefining luxury streetwear since 2024. We bring you exclusive 
               collaborations and limited edition designer footwear and apparel.
             </p>
             <div className="flex space-x-4">

@@ -931,11 +931,11 @@ export default function CheckoutPage() {
                         <div className="space-y-4">
                           <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
                             <p className="text-sm text-gray-300 mb-2">1. Go to M-Pesa on your phone</p>
-                            <p className="text-sm text-gray-300 mb-2">2. Select <span className="text-yellow-500 font-semibold">Lipa Na M-Pesa</span></p>
-                            <p className="text-sm text-gray-300 mb-2">3. Select <span className="text-yellow-500 font-semibold">Pay Bill</span></p>
+                            <p className="text-sm text-gray-300 mb-2">2. Select <span className="text-yellow-500 font-semibold">Send Money</span></p>
+                            {/*<p className="text-sm text-gray-300 mb-2">3. Select <span className="text-yellow-500 font-semibold">Pay Bill</span></p>
                             <p className="text-sm text-gray-300 mb-2">4. Enter Business Number: <span className="text-yellow-500 font-semibold">880100</span></p>
-                            <p className="text-sm text-gray-300 mb-2">5. Enter Account Number: <span className="text-yellow-500 font-semibold">Your Phone Number</span></p>
-                            <p className="text-sm text-gray-300">6. Enter Amount: <span className="text-yellow-500 font-semibold">KSh {cart.totalAmount.toLocaleString()}</span></p>
+                            <p className="text-sm text-gray-300 mb-2">5. Enter Account Number: <span className="text-yellow-500 font-semibold">Your Phone Number</span></p>*/}
+                            <p className="text-sm text-gray-300">2. Enter Amount: <span className="text-yellow-500 font-semibold">KSh {cart.totalAmount.toLocaleString()}</span></p>
                           </div>
 
                           <div className="flex items-center justify-between bg-gray-900/50 rounded-lg p-4 border border-gray-700">
