@@ -11,11 +11,11 @@ const Footer = () => {
   return (
     <footer className="bg-gradient-to-t from-black to-gray-900 border-t border-gray-800">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Brand Section */}
+        {/*<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          {/* Brand Section *
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              {/*<div className="h-10 w-10 gradient-yellow rounded-full"></div>*/}
+              {/*<div className="h-10 w-10 gradient-yellow rounded-full"></div>*
               <span className="text-2xl font-bold">
                 X<span className="text-yellow-500"> TREME</span>
               </span>
@@ -36,7 +36,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Footer Links */}
+          {/* Footer Links *
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
               <h3 className="text-lg font-bold mb-4">{category}</h3>
@@ -54,7 +54,7 @@ const Footer = () => {
               </ul>
             </div>
           ))}
-        </div>
+        </div>*/}
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">

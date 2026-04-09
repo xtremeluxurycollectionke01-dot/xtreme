@@ -12,7 +12,7 @@ export default function Home() {
       <HeroSection />
       <FeaturedProducts />
       <FeaturedCollections />
-      <Newsletter />
+      {/*<Newsletter />*/}
       <Footer />
     </div>
   )
