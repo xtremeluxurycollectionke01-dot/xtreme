@@ -51,7 +51,7 @@ export default function Home() {
 }*/
 
 // app/page.tsx (updated)
-/*"use client";
+{/*"use client";
 
 import { useState } from "react";
 import { UsersList } from "@/components/users-list";
@@ -83,5 +83,5 @@ export default function Home() {
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
-}*/
+}*/}
 

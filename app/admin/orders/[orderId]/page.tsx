@@ -91,7 +91,7 @@ export default function AdminOrderDetailsPage() {
   const orderId = params?.id || params?.orderId;
 
   // Helper function to safely get product image
-  const getProductImage = (item: OrderItem): string | null => {
+  /*const getProductImage = (item: OrderItem): string | null => {
     if (!item.product) return null;
     
     // If product is an object and has images
@@ -100,7 +100,21 @@ export default function AdminOrderDetailsPage() {
     }
     
     return null;
-  };
+  };*/
+
+  // Replace the getProductImage function with this version that returns null for empty strings
+const getProductImage = (item: OrderItem): string | null => {
+  if (!item.product) return null;
+  
+  // If product is an object and has images
+  if (typeof item.product === 'object' && item.product !== null) {
+    const image = item.product.images?.[0];
+    // Return null if image is empty string or undefined/null
+    return image && image !== "" ? image : null;
+  }
+  
+  return null;
+};
 
   // Helper function to get product SKU
   const getProductSku = (item: OrderItem): string => {
@@ -518,25 +532,25 @@ export default function AdminOrderDetailsPage() {
                     
                     return (
                       <div key={index} className="flex gap-4 pb-4 border-b border-gray-800 last:border-0 last:pb-0">
-                        <div className="relative w-20 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-{productImage ? (
-  <Image
-    src={productImage}
-    alt={item.name}
-    fill
-    className="object-cover"
-    onError={(e) => {
-      const target = e.target as HTMLImageElement;
-      // Use inline SVG data URL instead of fetching from server
-      target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"%3E%3Crect x="3" y="3" width="18" height="18" rx="2" ry="2"%3E%3C/rect%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"%3E%3C/circle%3E%3Cpolyline points="21 15 16 10 5 21"%3E%3C/polyline%3E%3C/svg%3E';
-    }}
-  />
-) : (
-  <div className="absolute inset-0 flex items-center justify-center">
-    <Package className="h-8 w-8 text-gray-600" />
-  </div>
-)}
-                        </div>
+<div className="relative w-20 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+  {productImage ? (
+    <Image
+      src={productImage}
+      alt={item.name}
+      fill
+      className="object-cover"
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        // Use inline SVG data URL instead of fetching from server
+        target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"%3E%3Crect x="3" y="3" width="18" height="18" rx="2" ry="2"%3E%3C/rect%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"%3E%3C/circle%3E%3Cpolyline points="21 15 16 10 5 21"%3E%3C/polyline%3E%3C/svg%3E';
+      }}
+    />
+  ) : (
+    <div className="absolute inset-0 flex items-center justify-center">
+      <Package className="h-8 w-8 text-gray-600" />
+    </div>
+  )}
+</div>
                         <div className="flex-1">
                           <div className="flex justify-between">
                             <div>
