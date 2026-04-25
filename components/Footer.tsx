@@ -94,10 +94,17 @@ export default Footer*/
 
 
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react'
-
+import Link from 'next/link'
 const Footer = () => {
   const footerLinks = {
-    '': ['']
+    //Shop: ['Sneakers', 'Boots', 'Sandals', 'Apparel', 'Accessories'],
+    //Company: ['About Us', 'Careers', 'Press', 'Sustainability'],
+    //Support: ['Contact Us', 'Shipping Info', 'Returns & Exchanges', 'FAQ'],
+    //Legal: ['Returns & refunds Policy', 'Shipping & Delivery Policy']
+    Legal: [
+    { name: 'Returns & Refunds Policy', path: '/returns' },
+    { name: 'Shipping & Delivery Policy', path: '/shipping' },
+  ]
   }
 
   return (
@@ -134,7 +141,7 @@ const Footer = () => {
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
               <h3 className="text-lg font-bold mb-4">{category}</h3>
-              <ul className="space-y-2">
+              {/*<ul className="space-y-2">
                 {links.map((link) => (
                   <li key={link}>
                     <a
@@ -143,6 +150,18 @@ const Footer = () => {
                     >
                       {link}
                     </a>
+                  </li>
+                ))}
+              </ul>*/}
+              <ul className="space-y-2">
+                {links.map(({ name, path }) => (
+                  <li key={name}>
+                    <Link
+                      href={path}
+                      className="text-gray-400 hover:text-yellow-500 transition-colors"
+                    >
+                      {name}
+                    </Link>
                   </li>
                 ))}
               </ul>
