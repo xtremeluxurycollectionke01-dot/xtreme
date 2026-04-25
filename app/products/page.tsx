@@ -684,7 +684,7 @@ export default function ProductsPage() {
                                         {product.name}
                                       </h3>
                                     </Link>
-                                    <span className="text-sm text-gray-500">{product.brand}</span>
+                                    {/*<span className="text-sm text-gray-500">{product.brand}</span>*/}
                                   </div>
                                   {product.isFeatured && (
                                     <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-yellow-400 text-xs font-semibold">
