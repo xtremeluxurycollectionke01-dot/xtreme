@@ -400,7 +400,7 @@ export default Navbar;*/
 
 "use client";
 
-import { Search, ShoppingBag, Menu, X, User, LogOut, Instagram } from "lucide-react";
+import { Search, ShoppingBag, Menu, X, User, LogOut, Instagram, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
@@ -492,6 +492,15 @@ const Navbar = () => {
                 <Instagram className="h-5 w-5 text-gray-300 group-hover:text-white relative z-10 transition-colors duration-300" />
               </div>
             </a>
+
+            {/* Help / Size Guide Link */}
+            <Link 
+              href="/help" 
+              className="hidden md:flex items-center text-gray-300 hover:text-yellow-500 transition-colors duration-300"
+              aria-label="Size Guide & Help"
+            >
+              <HelpCircle className="h-5 w-5" />
+            </Link>
 
             {user ? (
               <div className="relative">
@@ -615,6 +624,15 @@ const Navbar = () => {
                 <Instagram className="h-5 w-5" />
                 <span>Instagram</span>
               </a>
+
+              <Link
+                href="/help"
+                className="flex items-center space-x-2 text-gray-300 hover:text-yellow-500 transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <HelpCircle className="h-5 w-5" />
+                <span>Size Guide</span>
+              </Link>
               
               {!user && (
                 <Link
