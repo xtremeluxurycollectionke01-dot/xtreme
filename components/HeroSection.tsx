@@ -252,9 +252,9 @@ const HeroSection = () => {
 
   // Mobile slides
   const mobileSlides = [
-    { id: 1, image: "/images/image18.jpeg", alt: "Designer Sneakers - Limited Edition", title: "Limited Edition Drops", subtitle: "Exclusive Collaborations" },
-    { id: 2, image: "/images/image17.jpeg", alt: "Premium Designer Footwear", title: "Premium Craftsmanship", subtitle: "Handcrafted Excellence" },
-    { id: 3, image: "/images/image19.jpeg", alt: "Luxury Street Style", title: "Street Style Redefined", subtitle: "Urban Luxury" }
+    { id: 1, image: "/images/image22.jpeg", alt: "Designer Sneakers - Limited Edition", title: "Limited Edition Drops", subtitle: "Exclusive Collaborations" },
+    { id: 2, image: "/images/image23.jpeg", alt: "Premium Designer Footwear", title: "Premium Craftsmanship", subtitle: "Handcrafted Excellence" },
+    { id: 3, image: "/images/image24.jpeg", alt: "Luxury Street Style", title: "Street Style Redefined", subtitle: "Urban Luxury" }
   ]
 
   const nextSlide = useCallback(() => {
