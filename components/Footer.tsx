@@ -102,9 +102,12 @@ const Footer = () => {
     //Support: ['Contact Us', 'Shipping Info', 'Returns & Exchanges', 'FAQ'],
     //Legal: ['Returns & refunds Policy', 'Shipping & Delivery Policy']
     Legal: [
-    { name: 'Returns & Refunds Policy', path: '/returns' },
-    { name: 'Shipping & Delivery Policy', path: '/shipping' },
-  ]
+      { name: 'Returns & Refunds Policy', path: '/returns' },
+      { name: 'Shipping & Delivery Policy', path: '/shipping' },
+    ],
+    Support: [
+      { name: 'Size Chart', path: '/help' },
+    ],
   }
 
   return (
