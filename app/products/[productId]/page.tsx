@@ -395,7 +395,8 @@ import {
   Check,
   Truck,
   Shield,
-  RotateCcw
+  RotateCcw,
+  Ruler
 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import AddToCartButton from "@/components/AddToCartButton";
@@ -835,20 +836,51 @@ export default function ProductPage() {
             </div>
 
             {/* Product Meta */}
-            <div className="border-t border-gray-800 pt-6 space-y-3">
+            {/*<div className="border-t border-gray-800 pt-6 space-y-3">
               <div className="flex items-center gap-3 text-gray-400">
                 <Truck className="h-5 w-5 text-yellow-500" />
                 <span>Free shipping on orders over KSh 25,000</span>
               </div>
-              {/*<div className="flex items-center gap-3 text-gray-400">
+              <div className="flex items-center gap-3 text-gray-400">
                 <Shield className="h-5 w-5 text-yellow-500" />
                 <span>2 year warranty on all products</span>
-              </div>*/}
+              </div>
               <div className="flex items-center gap-3 text-gray-400">
                 <RotateCcw className="h-5 w-5 text-yellow-500" />
                 <span>30-day return policy</span>
               </div>
-            </div>
+            </div>*/}
+
+            <div className="border-t border-gray-800 pt-6 space-y-3">
+
+            {/* Shipping */}
+            <Link
+              href="/shipping"
+              className="flex items-center gap-3 text-gray-400 hover:text-yellow-500 transition-colors"
+            >
+              <Truck className="h-5 w-5 text-yellow-500" />
+              <span>Shipping Information</span>
+            </Link>
+
+            {/* Returns */}
+            <Link
+              href="/returns"
+              className="flex items-center gap-3 text-gray-400 hover:text-yellow-500 transition-colors"
+            >
+              <RotateCcw className="h-5 w-5 text-yellow-500" />
+              <span>Returns & Exchanges</span>
+            </Link>
+
+            {/* Size Guide */}
+            <Link
+              href="/help"
+              className="flex items-center gap-3 text-gray-400 hover:text-yellow-500 transition-colors"
+            >
+              <Ruler className="h-5 w-5 text-yellow-500" />
+              <span>Size Chart</span>
+            </Link>
+
+          </div>
 
             {/* SKU & Tags */}
             <div className="text-sm text-gray-500">

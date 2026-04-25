@@ -238,7 +238,7 @@ const HelpPage = () => {
                 </div>
               </a>
 
-              <a
+              {/*<a
                 href="mailto:support@xtremecollection.com"
                 className="flex items-center gap-3 px-6 py-3 bg-gray-900/50 rounded-lg border border-gray-800 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all group"
               >
@@ -247,7 +247,7 @@ const HelpPage = () => {
                   <p className="text-xs text-gray-500">Email Us</p>
                   <p className="text-white font-medium">support@xtremecollection.com</p>
                 </div>
-              </a>
+              </a>*/}
 
               <a
                 href="https://wa.me/254799600560"
