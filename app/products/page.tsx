@@ -597,7 +597,7 @@ export default function ProductsPage() {
                                   <h3 className="text-lg font-bold text-white line-clamp-1 flex-1">
                                     {product.name}
                                   </h3>
-                                  <span className="text-xs text-gray-500 ml-2">{product.brand}</span>
+                                  {/*}span className="text-xs text-gray-500 ml-2">{product.brand}</span>*/}
                                 </div>
                                 
                                 {product.description && (
