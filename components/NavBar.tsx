@@ -558,6 +558,13 @@ const Navbar = () => {
                         >
                           Admin Orders
                         </Link>
+                        <Link
+                          href="/admin/metrics"
+                          className="block px-4 py-2 text-gray-300 hover:bg-yellow-500 hover:text-black transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Metrics
+                        </Link>
                       </>
                     )}
                     <hr className="border-gray-800 my-2" />
