@@ -85,7 +85,7 @@ export interface IMpesaDetails {
 
 export interface IOrder extends Document {
   orderNumber: string;
-  user: mongoose.Types.ObjectId;
+  user?: mongoose.Types.ObjectId;
   items: IOrderItem[];
   totalAmount: number;
   shippingAddress: {
@@ -128,7 +128,9 @@ const MpesaDetailsSchema = new Schema({
 const OrderSchema: Schema<IOrder> = new Schema(
   {
     orderNumber: { type: String, required: true, unique: true },
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    //user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    // In models/Order.ts, update the user field:
+    user: { type: Schema.Types.ObjectId, ref: "User", required: false }, 
     items: [OrderItemSchema],
     totalAmount: { type: Number, required: true, min: 0 },
     shippingAddress: {

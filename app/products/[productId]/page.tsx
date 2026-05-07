@@ -400,6 +400,7 @@ import {
 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import AddToCartButton from "@/components/AddToCartButton";
+import QuickBuyModal from "@/components/QuickBuyModal";
 
 // Update the Product interface to match your schema
 interface ProductImage {
@@ -456,6 +457,7 @@ export default function ProductPage() {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [addedToWishlist, setAddedToWishlist] = useState(false);
+  const [showQuickBuy, setShowQuickBuy] = useState(false);
 
   useEffect(() => {
     if (params.productId) {
@@ -800,6 +802,14 @@ export default function ProductPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              
+            <button
+              onClick={() => setShowQuickBuy(true)}
+              disabled={product.stock === 0}
+              className="flex-1 px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Buy Now
+            </button>
               {/*<AddToCartButton
                 productId={product._id}
                 productName={product.name}
@@ -810,6 +820,7 @@ export default function ProductPage() {
                 quantity={quantity}
                 className="flex-1"
               />*/}
+
               
               <AddToCartButton
                 productId={product._id}
@@ -911,6 +922,19 @@ export default function ProductPage() {
             </div>
           </motion.div>
         </div>
+        <QuickBuyModal
+  isOpen={showQuickBuy}
+  onClose={() => setShowQuickBuy(false)}
+  product={{
+    _id: product._id,
+    name: product.name,
+    price: product.price,
+    image: product.images?.[0]?.url || '/placeholder.jpg',
+  }}
+  selectedSize={selectedSize}
+  selectedColor={selectedColor}
+  quantity={quantity}
+/>
       </div>
     </div>
   );
