@@ -171,6 +171,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import ForgotPasswordModal from "@/components/ForgotPasswordModal";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -182,6 +183,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -306,9 +308,12 @@ export default function LoginPage() {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="text-yellow-500 hover:text-yellow-400">
+              <button
+                onClick={() => setShowForgotPassword(true)}
+                className="text-yellow-500 hover:text-yellow-400"
+              >
                 Forgot your password?
-              </a>
+              </button>
             </div>
           </div>
 
@@ -340,6 +345,11 @@ export default function LoginPage() {
           </p>
         </form>
       </motion.div>
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal 
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 }
