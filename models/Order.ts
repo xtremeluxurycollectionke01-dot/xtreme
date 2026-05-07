@@ -133,9 +133,9 @@ const OrderSchema: Schema<IOrder> = new Schema(
     totalAmount: { type: Number, required: true, min: 0 },
     shippingAddress: {
       street: { type: String, required: true },
-      city: { type: String, required: true },
+      city: { type: String, required: false },
       state: { type: String, required: true },
-      zipCode: { type: String, required: true },
+      zipCode: { type: String, required: false },
       country: { type: String, required: true, default: "Kenya" },
     },
     contactInfo: {
