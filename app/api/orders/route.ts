@@ -627,9 +627,26 @@ export async function DELETE(request: Request) {
     }
 
     // Check if user owns the order or is admin
-    if (order.user.toString() !== user._id.toString() && user.role !== "admin") {
+    //if (order.user.toString() !== user._id.toString() && user.role !== "admin") {
+    //  return NextResponse.json(
+    //    { success: false, error: "Forbidden" },
+    //    { status: 403 }
+    //  );
+    //}
+
+    // Check if user owns the order or is admin
+    // Handle case where order.user might be undefined (guest order)
+    if (order.user && order.user.toString() !== user._id.toString() && user.role !== "admin") {
       return NextResponse.json(
         { success: false, error: "Forbidden" },
+        { status: 403 }
+      );
+    }
+
+    // If order.user is undefined (guest order), only allow admin access
+    if (!order.user && user.role !== "admin") {
+      return NextResponse.json(
+        { success: false, error: "Forbidden - This is a guest order" },
         { status: 403 }
       );
     }
