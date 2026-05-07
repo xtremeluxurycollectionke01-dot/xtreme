@@ -738,7 +738,7 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div>
+                        {/*<div>
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             City <span className="text-red-500">*</span>
                           </label>
@@ -751,7 +751,7 @@ export default function CheckoutPage() {
                             className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
                             placeholder="e.g., Nairobi"
                           />
-                        </div>
+                        </div>*/}
                         <div>
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             State/Province <span className="text-red-500">*</span>
@@ -769,7 +769,7 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div>
+                        {/*<div>
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             ZIP/Postal Code <span className="text-red-500">*</span>
                           </label>
@@ -782,7 +782,7 @@ export default function CheckoutPage() {
                             className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
                             placeholder="e.g., 00100"
                           />
-                        </div>
+                        </div>*/}
                         <div>
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             Country <span className="text-red-500">*</span>
