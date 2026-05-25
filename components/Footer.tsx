@@ -102,7 +102,7 @@ const Footer = () => {
     //Support: ['Contact Us', 'Shipping Info', 'Returns & Exchanges', 'FAQ'],
     //Legal: ['Returns & refunds Policy', 'Shipping & Delivery Policy']
     Legal: [
-      { name: 'Returns & Refunds Policy', path: '/returns' },
+      { name: 'Returns Policy', path: '/returns' },
       { name: 'Shipping & Delivery Policy', path: '/shipping' },
     ],
     Support: [

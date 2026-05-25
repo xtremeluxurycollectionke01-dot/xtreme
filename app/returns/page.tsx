@@ -81,9 +81,9 @@ const ReturnsPolicy = () => {
           </div>
           
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tighter">
-            RETURNS &{" "}
+            RETURNS {" "}
             <span className="text-yellow-500 relative inline-block">
-              REFUND POLICY
+              POLICY
               <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-transparent"></div>
             </span>
           </h1>
