@@ -466,9 +466,12 @@ const Navbar = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-6">
-            <button className="hidden md:block">
+            {/*<button className="hidden md:block">
               <Search className="h-5 w-5 text-gray-300 hover:text-yellow-500 transition-colors" />
-            </button>
+            </button>*/}
+            <Link href="/search" className="hidden md:block">
+              <Search className="h-5 w-5 text-gray-300 hover:text-yellow-500 transition-colors" />
+            </Link>
             
             <Link href="/cart" className="relative">
               <ShoppingBag className="h-5 w-5 text-gray-300 hover:text-yellow-500 transition-colors" />
@@ -615,10 +618,18 @@ const Navbar = () => {
                 </Link>
               ))}
               
-              <button className="flex items-center space-x-2 text-gray-300 hover:text-yellow-500">
+              {/*<button className="flex items-center space-x-2 text-gray-300 hover:text-yellow-500">
                 <Search className="h-5 w-5" />
                 <span>Search</span>
-              </button>
+              </button>*/}
+              <Link 
+                href="/search" 
+                className="flex items-center space-x-2 text-gray-300 hover:text-yellow-500 py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Search className="h-5 w-5" />
+                <span>Search</span>
+              </Link>
               
               {/* Mobile Instagram Link */}
               <a
