@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
 
 // app/api/auth/forgot-password/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect} from "@/lib/mongodb";
 import User from "@/models/User";
 import PasswordResetToken from "@/models/PasswordResetToken";
 import crypto from "crypto";
