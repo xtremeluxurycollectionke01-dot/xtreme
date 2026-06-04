@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     // Initialize Socket.IO
     io = new SocketServer(httpServer, {
       cors: {
-        origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        origin: process.env.NEXT_PUBLIC_APP_URL,
         credentials: true,
       },
       path: "/api/socket/io",
