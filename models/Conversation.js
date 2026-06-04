@@ -58,7 +58,6 @@ const ConversationSchema = new mongoose.Schema(
       type: Date,
     },
 
-    // ✅ FIX: use Object instead of Map
     unreadCount: {
       type: Object,
       default: {},
@@ -68,9 +67,6 @@ const ConversationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-// unique conversation per pair
-ConversationSchema.index({ participants: 1 }, { unique: true });
 
 module.exports =
   mongoose.models.Conversation ||
