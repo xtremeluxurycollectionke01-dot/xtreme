@@ -22,7 +22,7 @@ app.prepare().then(() => {
 });*/
 
 // server.js
-const { createServer } = require('http');
+/*const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
@@ -284,5 +284,222 @@ app.prepare().then(async () => {
     console.log(`🚀 Server ready on http://localhost:${PORT}`);
     console.log(`📡 Socket.IO attached to same server`);
     console.log(`💾 MongoDB connection status: ${isConnected ? 'Connected' : 'Failed'}`);
+  });
+});*/
+
+const { createServer } = require("http");
+const { parse } = require("url");
+const next = require("next");
+const { Server } = require("socket.io");
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev });
+const handle = app.getRequestHandler();
+
+const Message = require("./models/Message");
+const Conversation = require("./models/Conversation");
+
+// ======================
+// MongoDB Connection
+// ======================
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      family: 4,
+    });
+
+    isConnected = true;
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB error:", err);
+    throw err;
+  }
+};
+
+// ======================
+// JWT
+// ======================
+const verifyToken = (token) => {
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "secret"
+    );
+
+    return {
+      id: decoded.id,
+      email: decoded.email,
+      name: decoded.name,
+      role: decoded.role,
+    };
+  } catch {
+    return null;
+  }
+};
+
+// ======================
+// Start App
+// ======================
+app.prepare().then(async () => {
+  await connectDB();
+
+  const server = createServer((req, res) => {
+    const parsedUrl = parse(req.url, true);
+    handle(req, res, parsedUrl);
+  });
+
+  const io = new Server(server, {
+    cors: {
+      origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      credentials: true,
+    },
+    path: "/api/socket/io",
+  });
+
+  // ======================
+  // Auth middleware
+  // ======================
+  io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    const user = verifyToken(token);
+
+    if (!user) return next(new Error("Unauthorized"));
+
+    socket.data.userId = user.id;
+    next();
+  });
+
+  // ======================
+  // Connection
+  // ======================
+  io.on("connection", (socket) => {
+    const userId = socket.data.userId;
+
+    socket.join(`user:${userId}`);
+
+    // ======================
+    // SEND MESSAGE (FIXED)
+    // ======================
+    socket.on("send_message", async ({ receiverId, content }) => {
+      try {
+        if (!receiverId || !content?.trim()) return;
+
+        const message = await Message.create({
+          sender: userId,
+          receiver: receiverId,
+          content: content.trim(),
+        });
+
+        const populatedMessage = await Message.findById(message._id)
+          .populate("sender receiver", "name email role")
+          .lean();
+
+        // ✅ FIX: deterministic key (NO duplicates ever)
+        const chatKey = [userId, receiverId].sort().join("_");
+
+        let conversation = await Conversation.findOne({ chatKey });
+
+        if (!conversation) {
+          conversation = await Conversation.create({
+            participants: [userId, receiverId],
+            chatKey,
+            lastMessage: content,
+            lastMessageAt: new Date(),
+            unreadCount: {
+              [receiverId]: 1,
+            },
+          });
+        } else {
+          conversation.lastMessage = content;
+          conversation.lastMessageAt = new Date();
+
+          const unread = conversation.unreadCount || {};
+          unread[receiverId] = (unread[receiverId] || 0) + 1;
+          conversation.unreadCount = unread;
+
+          await conversation.save();
+        }
+
+        io.to(`user:${receiverId}`).emit("new_message", {
+          message: populatedMessage,
+          conversationId: conversation._id,
+        });
+
+        socket.emit("message_sent", {
+          message: populatedMessage,
+          conversationId: conversation._id,
+        });
+      } catch (err) {
+        console.error("send_message error:", err);
+      }
+    });
+
+    // ======================
+    // MARK READ (FIXED)
+    // ======================
+    socket.on("mark_read", async ({ senderId }) => {
+      try {
+        await Message.updateMany(
+          {
+            sender: senderId,
+            receiver: userId,
+            read: false,
+          },
+          {
+            read: true,
+            readAt: new Date(),
+          }
+        );
+
+        const chatKey = [userId, senderId].sort().join("_");
+
+        const conversation = await Conversation.findOne({ chatKey });
+
+        if (conversation) {
+          const unread = conversation.unreadCount || {};
+          unread[userId] = 0;
+          conversation.unreadCount = unread;
+          await conversation.save();
+        }
+
+        io.to(`user:${senderId}`).emit("messages_read", {
+          by: userId,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // ======================
+    // typing
+    // ======================
+    socket.on("typing_start", ({ receiverId }) => {
+      socket.to(`user:${receiverId}`).emit("user_typing", {
+        userId,
+        isTyping: true,
+      });
+    });
+
+    socket.on("typing_end", ({ receiverId }) => {
+      socket.to(`user:${receiverId}`).emit("user_typing", {
+        userId,
+        isTyping: false,
+      });
+    });
+
+    socket.on("disconnect", () => {
+      console.log("disconnected:", userId);
+    });
+  });
+
+  server.listen(3000, () => {
+    console.log("🚀 Server running on http://localhost:3000");
   });
 });
