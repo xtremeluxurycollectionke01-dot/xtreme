@@ -1,4 +1,4 @@
-import dbConnect from "../lib/mongodb";
+import {dbConnect} from "../lib/mongodb";
 import Product from "../models/Product";
 import products from "../products.json";
 
