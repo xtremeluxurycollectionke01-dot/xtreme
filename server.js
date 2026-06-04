@@ -357,7 +357,7 @@ app.prepare().then(async () => {
 
   const io = new Server(server, {
     cors: {
-      origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      origin: process.env.NEXT_PUBLIC_APP_URL,
       credentials: true,
     },
     path: "/api/socket/io",
