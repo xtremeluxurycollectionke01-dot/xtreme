@@ -138,7 +138,7 @@ export async function POST(request: Request) {
 
 // app/api/auth/register/route.ts
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import User from "@/models/User";
 import { signToken } from "@/lib/auth";
 

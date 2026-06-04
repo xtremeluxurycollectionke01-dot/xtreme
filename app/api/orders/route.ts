@@ -294,7 +294,7 @@ export async function DELETE(request: Request) {
 
 // app/api/orders/route.ts
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product";
