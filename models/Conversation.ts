@@ -35,8 +35,5 @@ const ConversationSchema: Schema<IConversation> = new Schema(
   }
 );
 
-// Ensure unique conversation between two users
-ConversationSchema.index({ participants: 1 }, { unique: true });
-
 const Conversation: Model<IConversation> = mongoose.models.Conversation || mongoose.model<IConversation>("Conversation", ConversationSchema);
 export default Conversation;
