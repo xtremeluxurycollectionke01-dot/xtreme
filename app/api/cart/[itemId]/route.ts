@@ -99,7 +99,7 @@ export async function DELETE(
 }*/
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import { requireAuth } from "@/lib/auth";
 

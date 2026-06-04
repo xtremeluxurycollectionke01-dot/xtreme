@@ -1,6 +1,6 @@
 // app/api/metrics/realtime/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import {dbConnect } from '@/lib/mongodb';
 import PageView from '@/models/PageView';
 import { requireAdmin } from '@/lib/auth';
 

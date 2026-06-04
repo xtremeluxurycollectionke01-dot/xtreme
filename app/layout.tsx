@@ -4,6 +4,7 @@ import './globals.css'
 
 import { AuthProvider } from '@/components/AuthProvider'
 import { CartProvider } from '@/components/CartProvider'
+import ChatButton from '@/components/chat/ChatButton'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       <CartProvider>
       <body className={`${inter.className} bg-black text-white`}>
         {children}
+        <ChatButton />
       </body>
       </CartProvider>
        </AuthProvider>

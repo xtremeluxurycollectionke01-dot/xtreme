@@ -79,7 +79,7 @@ export async function DELETE(
 }*/
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import "@/models/Category"; // Import to ensure Category model is registered
 

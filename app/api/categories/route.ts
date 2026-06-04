@@ -27,7 +27,7 @@ export async function GET() {
 
 
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Category from "@/models/Category";
 
 export async function GET() {

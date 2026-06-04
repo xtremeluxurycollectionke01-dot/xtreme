@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import "@/models/Category"; // Import Category model to register it with Mongoose
 

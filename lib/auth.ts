@@ -67,11 +67,11 @@ export async function requireAdmin(request: NextRequest) {
   return user;
 }*/
 
-// lib/auth.ts - Update the signToken to include name
+// lib/auth.ts 
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
-import dbConnect from "./mongodb";
+import {dbConnect} from "./mongodb";
 import User from "@/models/User";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";

@@ -111,7 +111,7 @@ export async function DELETE(
   }
 }*/
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/auth";
 
@@ -134,7 +134,7 @@ export async function GET(
 
     const { productId } = await context.params;
 
-    await dbConnect();
+    await dbConnect ();
 
     const product = await Product.findById(productId).populate("category");
 

@@ -1,6 +1,6 @@
 // app/api/metrics/track/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
+import { dbConnect } from '@/lib/mongodb';
 import PageView from '@/models/PageView';
 
 export async function POST(request: NextRequest) {

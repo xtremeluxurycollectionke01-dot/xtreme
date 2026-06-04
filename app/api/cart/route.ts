@@ -133,7 +133,7 @@ export async function DELETE(request: Request) {
 }*/
 
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import Product from "@/models/Product";
 import { requireAuth } from "@/lib/auth";

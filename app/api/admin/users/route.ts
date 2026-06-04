@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import User from "@/models/User";
 import Order from "@/models/Order";
 import { requireAdmin } from "@/lib/auth";

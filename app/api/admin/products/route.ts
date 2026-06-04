@@ -271,7 +271,7 @@ export async function POST(request: Request) {
 }*/
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { requireAdmin } from "@/lib/auth";
 import "@/models/Category";

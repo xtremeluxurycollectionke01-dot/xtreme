@@ -1,7 +1,7 @@
 // app/api/auth/update-phone/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
+import {dbConnect }from "@/lib/mongodb";
 import User from "@/models/User";
 import { getSession } from "@/lib/auth";
 
