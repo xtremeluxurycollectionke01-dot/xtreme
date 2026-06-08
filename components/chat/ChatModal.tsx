@@ -607,8 +607,8 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     // Initialize socket connection
     console.log("Initializing socket with token:", token.substring(0, 20) + "...");
     
-    //const newSocket = io('https://www.xtremeluxurycollection.co.ke', {
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io('https://www.xtremeluxurycollection.co.ke', {
+    //const newSocket = io('http://localhost:3000', {
       path: "/api/socket/io",
       auth: { token },
       transports: ['websocket', 'polling'],
