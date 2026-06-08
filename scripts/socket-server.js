@@ -289,7 +289,7 @@ const verifyToken = (token) => {
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "your-secret-key-change-in-production"
+      process.env.JWT_SECRET
     );
 
     return {
@@ -310,7 +310,7 @@ const verifyToken = (token) => {
 const initSocketServer = () => {
   const io = new Server({
     cors: {
-      origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      origin: process.env.NEXT_PUBLIC_APP_URL,
       credentials: true,
     },
     path: "/api/socket/io",

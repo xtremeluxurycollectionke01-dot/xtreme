@@ -74,7 +74,7 @@ import { NextRequest } from "next/server";
 import {dbConnect} from "./mongodb";
 import User from "@/models/User";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET as string
 
 export interface TokenPayload {
   id: string;

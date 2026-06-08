@@ -607,7 +607,8 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     // Initialize socket connection
     console.log("Initializing socket with token:", token.substring(0, 20) + "...");
     
-    const newSocket = io('https://www.xtremeluxurycollection.co.ke', {
+    //const newSocket = io('https://www.xtremeluxurycollection.co.ke', {
+    const newSocket = io('http://localhost:3000', {
       path: "/api/socket/io",
       auth: { token },
       transports: ['websocket', 'polling'],
@@ -648,7 +649,7 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
       }
     });
 
-    newSocket.on("message_sent", ({ message, conversationId }) => {
+    /*newSocket.on("message_sent", ({ message, conversationId }) => {
       console.log("Message sent confirmation:", message);
       if (isMounted) {
         // Add the sent message to the messages list
@@ -658,7 +659,25 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
         // Refresh conversations list
         loadConversations();
       }
-    });
+    });*/
+
+    newSocket.on("message_sent", ({ message, conversationId }) => {
+  console.log("Message sent confirmation:", message);
+  if (isMounted) {
+    // Always add the message if it's for the currently selected user
+    if (selectedUser && message.receiver._id === selectedUser._id) {
+      setMessages((prev) => {
+        // Check if message already exists to avoid duplicates
+        if (!prev.some(m => m._id === message._id)) {
+          return [...prev, message];
+        }
+        return prev;
+      });
+    }
+    // Refresh conversations list
+    loadConversations();
+  }
+});
 
     newSocket.on("message_error", ({ error }) => {
       console.error("Message error:", error);
@@ -683,10 +702,11 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
         newSocket.disconnect();
       }
     };
-  }, [isOpen, currentUser, token, loadConversations, loadUsers, selectedUser]);
+  //}, [isOpen, currentUser, token, loadConversations, loadUsers, selectedUser]);
+  }, [isOpen, currentUser, token]);
 
   // Handle sending message
-  const handleSendMessage = async (e: React.FormEvent) => {
+  /*const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
     console.log("Send button clicked - Debug:", {
@@ -728,7 +748,68 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     // Clear input and stop typing
     setNewMessage("");
     handleStopTyping();
+  };*/
+
+  // Update the handleSendMessage function (around line 220)
+const handleSendMessage = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  console.log("Send button clicked - Debug:", {
+    messageContent: newMessage,
+    trimmedContent: newMessage.trim(),
+    hasContent: !!newMessage.trim(),
+    selectedUser: selectedUser?._id,
+    hasSocket: !!socket,
+    socketConnected,
+    socketId: socket?.id
+  });
+  
+  if (!newMessage.trim()) {
+    console.log("No message content");
+    return;
+  }
+  
+  if (!selectedUser) {
+    console.log("No user selected");
+    alert("Please select a user to chat with");
+    return;
+  }
+  
+  if (!socket || !socketConnected) {
+    console.error("Socket not connected! Current state:", { socket: !!socket, socketConnected });
+    alert("Chat connection not ready. Please wait and try again.");
+    return;
+  }
+
+  const messageContent = newMessage.trim();
+  const currentSelectedUser = selectedUser; // Store reference to current selected user
+  
+  console.log("Sending message to:", currentSelectedUser._id, "content:", messageContent);
+
+  // Emit message
+  socket.emit("send_message", {
+    receiverId: currentSelectedUser._id,
+    content: messageContent,
+  });
+
+  // Clear input and stop typing
+  setNewMessage("");
+  handleStopTyping();
+  
+  // OPTIONAL: Add optimistic update for immediate feedback
+  // This will show the message instantly without waiting for server response
+  const tempMessage: Message = {
+    _id: `temp_${Date.now()}`,
+    content: messageContent,
+    sender: currentUser as User,
+    receiver: currentSelectedUser,
+    createdAt: new Date().toISOString(),
+    read: false,
   };
+  
+  setMessages((prev) => [...prev, tempMessage]);
+  scrollToBottom();
+};
 
   const handleStartTyping = () => {
     if (!isTyping && selectedUser && socket && socketConnected) {

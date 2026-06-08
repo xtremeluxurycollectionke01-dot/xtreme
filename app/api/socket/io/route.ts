@@ -1,21 +1,4 @@
 // app/api/socket/io/route.ts
-/*mport { NextRequest } from "next/server";
-import { createServer } from "http";
-import { initSocketServer } from "@/lib/socket-server";
-
-let isSocketInitialized = false;
-
-export async function GET(req: NextRequest) {
-  if (!isSocketInitialized) {
-    const server = createServer();
-    initSocketServer(server);
-    isSocketInitialized = true;
-  }
-
-  return new Response("Socket.IO server running", { status: 200 });
-}*/
-
-// app/api/socket/io/route.ts
 import { NextRequest } from "next/server";
 import { Server as SocketServer } from "socket.io";
 import { createServer } from "http";
