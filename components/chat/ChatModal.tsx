@@ -634,6 +634,44 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     });
 
     newSocket.on("new_message", ({ message, conversationId }) => {
+  console.log("New message received:", message);
+  console.log("Current selected user:", selectedUser?._id);
+  console.log("Message sender:", message.sender._id);
+  console.log("Message receiver:", message.receiver._id);
+  console.log("Current user:", currentUser?._id);
+  
+  if (isMounted) {
+    // Check if this message belongs to the currently selected conversation
+    // Either the sender is the selected user (receiving message)
+    // OR the receiver is the selected user (sending message to them)
+    const isForCurrentConversation = selectedUser && (
+      message.sender._id === selectedUser._id || 
+      message.receiver._id === selectedUser._id
+    );
+    
+    console.log("Is for current conversation:", isForCurrentConversation);
+    
+    if (isForCurrentConversation) {
+      setMessages((prev) => {
+        // Check if message already exists to avoid duplicates
+        if (!prev.some(m => m._id === message._id)) {
+          console.log("Adding message to state:", message.content);
+          return [...prev, message];
+        }
+        return prev;
+      });
+      
+      // Mark as read immediately if it's a received message
+      if (message.sender._id !== currentUser?._id && newSocket) {
+        newSocket.emit("mark_read", { senderId: message.sender._id });
+      }
+    }
+    // Refresh conversations list
+    loadConversations();
+  }
+});
+
+    /*newSocket.on("new_message", ({ message, conversationId }) => {
       console.log("New message received:", message);
       if (isMounted) {
         // Add message to state if it's for the current conversation
@@ -647,7 +685,7 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
         // Refresh conversations list
         loadConversations();
       }
-    });
+    });*/
 
     /*newSocket.on("message_sent", ({ message, conversationId }) => {
       console.log("Message sent confirmation:", message);
@@ -702,8 +740,8 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
         newSocket.disconnect();
       }
     };
-  //}, [isOpen, currentUser, token, loadConversations, loadUsers, selectedUser]);
-  }, [isOpen, currentUser, token]);
+  }, [isOpen, currentUser, token, loadConversations, loadUsers, selectedUser]);
+
 
   // Handle sending message
   /*const handleSendMessage = async (e: React.FormEvent) => {
