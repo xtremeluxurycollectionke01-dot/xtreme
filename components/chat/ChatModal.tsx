@@ -840,16 +840,16 @@ const handleSendMessage = async (e: React.FormEvent) => {
   
   // OPTIONAL: Add optimistic update for immediate feedback
   // This will show the message instantly without waiting for server response
-  const tempMessage: Message = {
-    _id: `temp_${Date.now()}`,
-    content: messageContent,
-    sender: currentUser as User,
-    receiver: currentSelectedUser,
-    createdAt: new Date().toISOString(),
-    read: false,
-  };
+  //const tempMessage: Message = {
+  //  _id: `temp_${Date.now()}`,
+  //  content: messageContent,
+  //  sender: currentUser as User,
+  //  receiver: currentSelectedUser,
+  //  createdAt: new Date().toISOString(),
+  //  read: false,
+  //};
   
-  setMessages((prev) => [...prev, tempMessage]);
+  setMessages((prev) => [...prev]);
   scrollToBottom();
 };
 
