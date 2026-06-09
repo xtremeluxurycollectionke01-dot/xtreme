@@ -591,6 +591,10 @@ export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+  console.log("Messages state updated:", messages.length, messages);
+ }, [messages]);
+
   // Initialize socket and load data
   useEffect(() => {
     if (!isOpen || !currentUser || !token) {
