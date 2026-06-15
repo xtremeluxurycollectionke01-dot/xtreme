@@ -822,7 +822,7 @@ const verifyToken = (token) => {
  * @param {string} content - Message content
  * @param {string} messageId - MongoDB message document ID
  */
-const sendPushNotification = async (receiverId, senderId, content, messageId) => {
+/*const sendPushNotification = async (receiverId, senderId, content, messageId) => {
   if (!firebaseInitialized) return;
 
   try {
@@ -872,6 +872,99 @@ const sendPushNotification = async (receiverId, senderId, content, messageId) =>
     console.log(`📱 FCM sent: ${response.successCount}/${receiver.fcmTokens.length} successful`);
 
     // Remove invalid tokens
+    if (response.failureCount > 0) {
+      const invalidTokens = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          const errorCode = resp.error?.code;
+          if (
+            errorCode === "messaging/invalid-registration-token" ||
+            errorCode === "messaging/registration-token-not-registered"
+          ) {
+            invalidTokens.push(receiver.fcmTokens[idx]);
+          }
+        }
+      });
+
+      if (invalidTokens.length > 0) {
+        await User.findByIdAndUpdate(receiverId, {
+          $pull: { fcmTokens: { $in: invalidTokens } },
+        });
+        console.log(`🧹 Cleaned ${invalidTokens.length} invalid FCM tokens`);
+      }
+    }
+  } catch (fcmError) {
+    console.error("❌ FCM Error:", fcmError.message);
+  }
+};*/
+
+
+// Update the sendPushNotification function in your server.js
+const sendPushNotification = async (receiverId, senderId, content, messageId) => {
+  if (!firebaseInitialized) return;
+
+  try {
+    const User = require("./models/User");
+    const receiver = await User.findById(receiverId).select("fcmTokens");
+
+    if (!receiver || !receiver.fcmTokens || receiver.fcmTokens.length === 0) {
+      console.log("📱 No FCM tokens for user:", receiverId);
+      return;
+    }
+
+    const sender = await User.findById(senderId).select("name");
+    const senderName = sender?.name || "Someone";
+
+    // CRITICAL FIX: Use correct payload structure
+    const fcmMessage = {
+      tokens: receiver.fcmTokens,
+      notification: {
+        title: `New message from ${senderName}`,
+        body: content.length > 100 ? content.substring(0, 97) + "..." : content,
+      },
+      data: {
+        type: "chat",
+        senderId: senderId.toString(),
+        senderName: senderName,
+        messageId: messageId.toString(),
+        conversationId: receiverId.toString(),
+        clickAction: "FLUTTER_NOTIFICATION_CLICK", // Required for Flutter
+        sound: "default", // Add sound to data payload
+      },
+      android: {
+        priority: "high",
+        notification: {
+          channelId: "chat_messages",
+          sound: "default",
+          priority: "high",
+          defaultSound: true,
+          defaultVibrateTimings: true,
+          vibrateTimingsMillis: [0, 400, 200, 400], // Vibration pattern
+          visibility: 1, // PUBLIC
+          priority: "max",
+        },
+      },
+      apns: {
+        headers: {
+          "apns-priority": "10",
+        },
+        payload: {
+          aps: {
+            alert: {
+              title: `New message from ${senderName}`,
+              body: content.length > 100 ? content.substring(0, 97) + "..." : content,
+            },
+            sound: "default",
+            badge: 1,
+            contentAvailable: true,
+          },
+        },
+      },
+    };
+
+    const response = await admin.messaging().sendEachForMulticast(fcmMessage);
+    console.log(`📱 FCM sent: ${response.successCount}/${receiver.fcmTokens.length} successful`);
+
     if (response.failureCount > 0) {
       const invalidTokens = [];
       response.responses.forEach((resp, idx) => {
