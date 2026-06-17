@@ -111,21 +111,21 @@ export async function getSession() {
 }
 
 export async function requireAuth(request: NextRequest) {
-  const token = request.cookies.get("auth-token")?.value;
-  
-  if (!token) {
-    return null;
-  }
-  
+  const authHeader = request.headers.get("authorization");
+  const cookieToken = request.cookies.get("auth-token")?.value;
+
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.replace("Bearer ", "")
+    : cookieToken;
+
+  if (!token) return null;
+
   const payload = await verifyToken(token);
-  if (!payload) {
-    return null;
-  }
-  
+  if (!payload) return null;
+
   await dbConnect();
-  const user = await User.findById(payload.id).select("-password");
-  
-  return user;
+
+  return await User.findById(payload.id).select("-password");
 }
 
 export async function requireAdmin(request: NextRequest) {

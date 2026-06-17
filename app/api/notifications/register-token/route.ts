@@ -65,7 +65,7 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }*/
-
+//C:\Users\Administrator\Desktop\xtreme\app\api\notifications\register-token\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import User from "@/models/User";
