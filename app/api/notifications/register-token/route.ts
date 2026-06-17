@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+/*import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { dbConnect } from "@/lib/mongodb";
 import User from "@/models/User";
@@ -58,6 +58,47 @@ export async function DELETE(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
+}*/
+
+import { NextRequest, NextResponse } from "next/server";
+import { dbConnect } from "@/lib/mongodb";
+import User from "@/models/User";
+import { requireAuth } from "@/lib/auth";
+
+export async function POST(req: NextRequest) {
+  try {
+    await dbConnect();
+
+    const user = await requireAuth(req);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 }
+      );
+    }
+
+    const { fcmToken } = await req.json();
+
+    if (!fcmToken) {
+      return NextResponse.json(
+        { error: "FCM token required" },
+        { status: 400 }
+      );
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      $addToSet: { fcmTokens: fcmToken },
+    });
+
+    return NextResponse.json({ success: true });
+
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message },
