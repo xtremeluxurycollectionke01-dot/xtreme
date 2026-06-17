@@ -822,81 +822,6 @@ const verifyToken = (token) => {
  * @param {string} content - Message content
  * @param {string} messageId - MongoDB message document ID
  */
-/*const sendPushNotification = async (receiverId, senderId, content, messageId) => {
-  if (!firebaseInitialized) return;
-
-  try {
-    const User = require("./models/User");
-    const receiver = await User.findById(receiverId).select("fcmTokens");
-
-    if (!receiver || !receiver.fcmTokens || receiver.fcmTokens.length === 0) {
-      console.log("📱 No FCM tokens for user:", receiverId);
-      return;
-    }
-
-    const sender = await User.findById(senderId).select("name");
-    const senderName = sender?.name || "Someone";
-
-    const fcmMessage = {
-      notification: {
-        title: `New message from ${senderName}`,
-        body: content.length > 100 ? content.substring(0, 97) + "..." : content,
-      },
-      data: {
-        type: "chat",
-        senderId: senderId,
-        senderName: senderName,
-        messageId: messageId.toString(),
-        conversationId: receiverId,
-        clickAction: "/messages",
-      },
-      tokens: receiver.fcmTokens,
-      android: {
-        priority: "high",
-        notification: {
-          channelId: "chat_messages",
-          sound: "default",
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: "default",
-            badge: 1,
-          },
-        },
-      },
-    };
-
-    const response = await admin.messaging().sendEachForMulticast(fcmMessage);
-    console.log(`📱 FCM sent: ${response.successCount}/${receiver.fcmTokens.length} successful`);
-
-    // Remove invalid tokens
-    if (response.failureCount > 0) {
-      const invalidTokens = [];
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          const errorCode = resp.error?.code;
-          if (
-            errorCode === "messaging/invalid-registration-token" ||
-            errorCode === "messaging/registration-token-not-registered"
-          ) {
-            invalidTokens.push(receiver.fcmTokens[idx]);
-          }
-        }
-      });
-
-      if (invalidTokens.length > 0) {
-        await User.findByIdAndUpdate(receiverId, {
-          $pull: { fcmTokens: { $in: invalidTokens } },
-        });
-        console.log(`🧹 Cleaned ${invalidTokens.length} invalid FCM tokens`);
-      }
-    }
-  } catch (fcmError) {
-    console.error("❌ FCM Error:", fcmError.message);
-  }
-};*/
 
 
 // Update the sendPushNotification function in your server.js
@@ -1017,6 +942,8 @@ app.prepare().then(async () => {
     const token = socket.handshake.auth.token;
 
     console.log("🔐 SOCKET TOKEN RECEIVED:", token ? "present" : "missing");
+    console.log("SESSION:", session);
+    console.log("FCM TOKEN:", fcmToken);
 
     try {
       const user = verifyToken(token);
