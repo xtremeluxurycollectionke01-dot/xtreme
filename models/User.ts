@@ -69,7 +69,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: "customer" | "admin";
-  phone?: string; // Top-level phone field
+  fcmTokens?: string[]; 
+  phone?: string; 
   createdAt: Date;
   updatedAt: Date;
   address?: {
@@ -90,6 +91,10 @@ const UserSchema: Schema<IUser> = new Schema(
     phone: { type: String, sparse: true }, // Top-level phone field
     password: { type: String, required: true },
     role: { type: String, enum: ["customer", "admin"], default: "customer" },
+    fcmTokens: {
+      type: [String],
+      default: [],
+    },
     address: {
       street: { type: String },
       city: { type: String },
