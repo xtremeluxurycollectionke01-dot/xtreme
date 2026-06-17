@@ -938,12 +938,11 @@ app.prepare().then(async () => {
   // ======================
   // Auth middleware
   // ======================
-  io.use((socket, next) => {
+  /*io.use((socket, next) => {
     const token = socket.handshake.auth.token;
 
     console.log("🔐 SOCKET TOKEN RECEIVED:", token ? "present" : "missing");
-    console.log("SESSION:", session);
-    console.log("FCM TOKEN:", fcmToken);
+
 
     try {
       const user = verifyToken(token);
@@ -955,7 +954,27 @@ app.prepare().then(async () => {
       console.log("JWT ERROR:", e.message);
       return next(new Error("Unauthorized"));
     }
-  });
+  });*/
+
+  io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+
+  console.log("🔐 SOCKET TOKEN RECEIVED:", token ? "present" : "missing");
+
+  try {
+    const user = verifyToken(token);
+    if (!user) return next(new Error("Unauthorized"));
+
+    socket.data.userId = user.id;
+
+    console.log("🟢 Authenticated user:", user.id);
+
+    next();
+  } catch (e) {
+    console.log("JWT ERROR:", e.message);
+    return next(new Error("Unauthorized"));
+  }
+});
 
   // ======================
   // Connection
