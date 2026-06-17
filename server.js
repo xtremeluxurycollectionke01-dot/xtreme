@@ -841,7 +841,7 @@ const sendPushNotification = async (receiverId, senderId, content, messageId) =>
     const senderName = sender?.name || "Someone";
 
     // CRITICAL FIX: Use correct payload structure
-    const fcmMessage = {
+    /*const fcmMessage = {
       tokens: receiver.fcmTokens,
       notification: {
         title: `New message from ${senderName}`,
@@ -887,7 +887,31 @@ const sendPushNotification = async (receiverId, senderId, content, messageId) =>
       },
     };
 
-    const response = await admin.messaging().sendEachForMulticast(fcmMessage);
+    const response = await admin.messaging().sendEachForMulticast(fcmMessage);*/
+    const message = {
+    tokens: receiver.fcmTokens,
+    notification: {
+      title: `New message from ${senderName}`,
+      body: content.length > 100 ? content.substring(0, 97) + "..." : content,
+    },
+    data: {
+      type: "chat",
+      senderId: senderId.toString(),
+      senderName,
+      messageId: messageId.toString(),
+      conversationId: receiverId.toString(),
+    },
+  };
+
+  const response = await admin.messaging().sendEachForMulticast(message);
+  if (response.failureCount > 0) {
+    response.responses.forEach((r, i) => {
+      if (!r.success) {
+        console.log("❌ FCM ERROR:", r.error);
+        console.log("❌ FAILED TOKEN:", receiver.fcmTokens[i]);
+      }
+    });
+  }
     console.log(`📱 FCM sent: ${response.successCount}/${receiver.fcmTokens.length} successful`);
 
     if (response.failureCount > 0) {
