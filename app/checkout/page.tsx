@@ -513,7 +513,7 @@ export default function CheckoutPage() {
   );
 }*/
 
-"use client";
+/*"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -675,7 +675,7 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="max-w-6xl mx-auto"
         >
-          {/* Header */}
+          {/* Header *
           <div className="flex items-center gap-4 mb-8">
             <Link
               href="/cart"
@@ -688,7 +688,7 @@ export default function CheckoutPage() {
             </h1>
           </div>
 
-          {/* Progress Steps */}
+          {/* Progress Steps *
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-yellow-500 text-black' : 'bg-gray-800 text-gray-400'}`}>
@@ -706,10 +706,10 @@ export default function CheckoutPage() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Checkout Form */}
+            {/* Checkout Form *
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Step 1: Shipping */}
+                {/* Step 1: Shipping *
                 {step === 1 && (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -738,20 +738,6 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        {/*<div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            City <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            name="city"
-                            value={formData.city}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                            placeholder="e.g., Nairobi"
-                          />
-                        </div>*/}
                         <div>
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             State/Province <span className="text-red-500">*</span>
@@ -769,20 +755,6 @@ export default function CheckoutPage() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
-                        {/*<div>
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            ZIP/Postal Code <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            name="zipCode"
-                            value={formData.zipCode}
-                            onChange={handleChange}
-                            required
-                            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white"
-                            placeholder="e.g., 00100"
-                          />
-                        </div>*/}
                         <div>
                           <label className="block text-sm font-medium text-gray-300 mb-2">
                             Country <span className="text-red-500">*</span>
@@ -812,7 +784,7 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* Step 2: Payment */}
+                {/* Step 2: Payment *
                 {step === 2 && (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -824,7 +796,7 @@ export default function CheckoutPage() {
                       Payment Information
                     </h2>
 
-                    {/* Payment Method Selection */}
+                    {/* Payment Method Selection *
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-300 mb-3">
                         Select Payment Method
@@ -883,7 +855,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    {/* Contact Information */}
+                    {/* Contact Information *
                     <div className="space-y-4 mb-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -916,7 +888,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    {/* M-Pesa Payment Details */}
+                    {/* M-Pesa Payment Details *
                     {paymentMethod === "mpesa" && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -934,7 +906,7 @@ export default function CheckoutPage() {
                             <p className="text-sm text-gray-300 mb-2">2. Select <span className="text-yellow-500 font-semibold">Send Money</span></p>
                             {/*<p className="text-sm text-gray-300 mb-2">3. Select <span className="text-yellow-500 font-semibold">Pay Bill</span></p>
                             <p className="text-sm text-gray-300 mb-2">4. Enter Business Number: <span className="text-yellow-500 font-semibold">880100</span></p>
-                            <p className="text-sm text-gray-300 mb-2">5. Enter Account Number: <span className="text-yellow-500 font-semibold">Your Phone Number</span></p>*/}
+                            <p className="text-sm text-gray-300 mb-2">5. Enter Account Number: <span className="text-yellow-500 font-semibold">Your Phone Number</span></p>*
                             <p className="text-sm text-gray-300">2. Enter Amount: <span className="text-yellow-500 font-semibold">KSh {cart.totalAmount.toLocaleString()}</span></p>
                           </div>
 
@@ -986,7 +958,7 @@ export default function CheckoutPage() {
                       </motion.div>
                     )}
 
-                    {/* Card Payment Details */}
+                    {/* Card Payment Details *
                     {paymentMethod === "card" && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -1052,7 +1024,7 @@ export default function CheckoutPage() {
                       </motion.div>
                     )}
 
-                    {/* Cash on Delivery Info */}
+                    {/* Cash on Delivery Info *
                     {paymentMethod === "cash" && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -1090,7 +1062,7 @@ export default function CheckoutPage() {
                   </motion.div>
                 )}
 
-                {/* Step 3: Review */}
+                {/* Step 3: Review *
                 {step === 3 && (
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
@@ -1176,7 +1148,7 @@ export default function CheckoutPage() {
               </form>
             </div>
 
-            {/* Order Summary */}
+            {/* Order Summary *
             <div className="lg:col-span-1">
               <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 sticky top-24">
                 <h2 className="text-xl font-bold mb-6">Your Order</h2>
@@ -1231,7 +1203,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Security Badge */}
+                {/* Security Badge *
                 <div className="mt-6 p-4 bg-gray-800/30 rounded-lg">
                   <div className="flex items-center gap-2 text-gray-400 text-sm">
                     <Shield className="h-4 w-4 text-green-500" />
@@ -1244,6 +1216,210 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}*/
+
+// app/checkout/page.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import { useCart } from "@/components/CartProvider";
+import { ProgressSteps } from "@/components/checkout/ProgressSteps";
+import { OrderSummary } from "@/components/checkout/OrderSummary";
+import { ShippingForm } from "@/components/checkout/ShippingForm";
+import { PaymentForm } from "@/components/checkout/PaymentForm";
+import { ReviewOrder } from "@/components/checkout/ReviewOrder";
+import { LoadingSpinner } from "@/components/checkout/LoadingSpinner";
+
+
+const MPESA_NUMBER = "0799 600560";
+
+export default function CheckoutPage() {
+  const router = useRouter();
+  const { cart, loading, clearCart } = useCart();
+  const [step, setStep] = useState(1);
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"mpesa" | "card" | "cash">("mpesa");
+
+  const [formData, setFormData] = useState({
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "Kenya",
+    email: "",
+    phone: "",
+    mpesaTransactionCode: "",
+    cardNumber: "",
+    cardName: "",
+    expiry: "",
+    cvv: "",
+  });
+
+  useEffect(() => {
+    if (!loading && (!cart || cart.items.length === 0)) {
+      router.push("/cart");
+    }
+  }, [cart, loading, router]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setProcessing(true);
+
+    try {
+      // Validate required fields based on payment method
+      if (!formData.street || !formData.city || !formData.state || !formData.zipCode) {
+        throw new Error("Please fill in all shipping address fields");
+      }
+
+      if (!formData.email || !formData.phone) {
+        throw new Error("Email and phone are required");
+      }
+
+      if (paymentMethod === "mpesa" && !formData.mpesaTransactionCode) {
+        throw new Error("Please enter the M-Pesa transaction code");
+      }
+
+      // Ensure cart is not null before proceeding
+      if (!cart) {
+        throw new Error("Cart is empty");
+      }
+
+      // Create order
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cart.items.map(item => ({
+            product: item.product._id,
+            name: item.product.name,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+            price: item.price,
+          })),
+          totalAmount: cart.totalAmount,
+          shippingAddress: {
+            street: formData.street,
+            city: formData.city,
+            state: formData.state,
+            zipCode: formData.zipCode,
+            country: formData.country,
+          },
+          email: formData.email,
+          phone: formData.phone,
+          paymentMethod,
+          mpesaTransactionCode: paymentMethod === "mpesa" ? formData.mpesaTransactionCode : undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.errors) {
+          const errorMessages = Object.values(data.errors).join(", ");
+          throw new Error(errorMessages);
+        }
+        throw new Error(data.error || "Failed to create order");
+      }
+
+      await clearCart();
+      router.push(`/orders/${data.order._id}/success`);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+  if (!cart || cart.items.length === 0) return null;
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <ShippingForm
+            formData={formData}
+            onChange={handleChange}
+            onNext={() => setStep(2)}
+          />
+        );
+      case 2:
+        return (
+          <PaymentForm
+            paymentMethod={paymentMethod}
+            formData={formData}
+            totalAmount={cart.totalAmount}
+            mpesaNumber={MPESA_NUMBER}
+            onPaymentMethodChange={setPaymentMethod}
+            onFormChange={handleChange}
+            onBack={() => setStep(1)}
+            onNext={() => setStep(3)}
+          />
+        );
+      case 3:
+        return (
+          <ReviewOrder
+            formData={formData}
+            paymentMethod={paymentMethod}
+            totalAmount={cart.totalAmount}
+            error={error}
+            processing={processing}
+            onBack={() => setStep(2)}
+            onSubmit={handleSubmit}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 py-12">
+      <div className="container mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-6xl mx-auto"
+        >
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <Link
+              href="/cart"
+              className="p-2 bg-gray-900 border border-gray-800 rounded-lg hover:border-yellow-500 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="text-3xl sm:text-4xl font-bold">
+              CHECK<span className="text-yellow-500">OUT</span>
+            </h1>
+          </div>
+
+          <ProgressSteps step={step} />
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">{renderStep()}</div>
+            <div className="lg:col-span-1">
+              <OrderSummary items={cart.items} totalAmount={cart.totalAmount} />
             </div>
           </div>
         </motion.div>

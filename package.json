@@ -10,10 +10,12 @@
     "seed:categories": "node scripts/seed-categories.js"
   },
   "dependencies": {
+    "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
     "concurrently": "^8.2.2",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.21",
     "dotenv": "^17.3.1",
     "firebase-admin": "^13.10.0",
     "framer-motion": "^12.34.0",
